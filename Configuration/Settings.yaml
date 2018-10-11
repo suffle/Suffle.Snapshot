@@ -1,0 +1,4 @@
+Suffle:
+  Snapshot:
+    snapshotSavePath: '%FLOW_PATH_DATA%Persistent/fusionSnapshots/'
+    annotationKey: 'snapshot'

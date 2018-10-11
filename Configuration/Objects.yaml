@@ -1,0 +1,4 @@
+Suffle\Snapshot\Fusion\FusionView:
+  properties:
+    fallbackView:
+      object: Neos\FluidAdaptor\View\TemplateView

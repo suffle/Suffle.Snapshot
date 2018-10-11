@@ -1,0 +1,22 @@
+{
+    "name": "suffle/snapshot",
+    "type": "neos-plugin",
+    "description": "Snapshot Testing of standalone fusion components",
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Sebastian Flor",
+            "email": "sebastian@flor.rocks",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "neos/neos": "*",
+        "sebastian/diff": "3.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "Suffle\\Snapshot": "Classes"
+        }
+    }
+}
