@@ -1,0 +1,26 @@
+{
+  "name": "snapshot-ui",
+  "version": "1.0.0",
+  "description": "A Flow package to perform snapshot tests of fusion components",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/suffle/Suffle.Snapshot.git"
+  },
+  "keywords": [
+    "testing",
+    "neos",
+    "fusion"
+  ],
+  "author": "Sebastian Flor",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/suffle/Suffle.Snapshot/issues"
+  },
+  "homepage": "https://github.com/suffle/Suffle.Snapshot#readme"
+
+
+}

@@ -19,12 +19,21 @@ use Neos\Flow\Mvc\ActionRequest;
 use Neos\Flow\Mvc\Controller\Arguments;
 use Neos\Flow\Mvc\Routing\UriBuilder;
 use Neos\Flow\Mvc\Controller\ControllerContext;
+use Suffle\Snapshot\Resource\Target\OverridableFileSystemTarget;
+
+use Neos\Flow\Annotations as Flow;
 
 /**
  * Utility trait to create controller contexts within CLI SAPI
  */
-trait DummyContextTrait
+trait SimulateContextTrait
 {
+    /**
+    * @Flow\Inject
+    * @var \Neos\Flow\ResourceManagement\ResourceManager
+    */
+    protected $resourceManager;
+
     /**
      * Create a dummy controller context
      *
@@ -41,4 +50,30 @@ trait DummyContextTrait
 
         return new ControllerContext($request, $response, $arguments, $uriBuilder);
     }
+
+    /**
+     * Override the baseUri of static resource targets
+     *
+     * This is needed because the rendering can be executed via CLI without a baseUri
+     *
+     * @param string $baseUri
+     * @throws \Neos\Utility\Exception\PropertyNotAccessibleException
+     */
+    protected function injectBaseUriIntoFileSystemTargets($baseUri)
+    {
+        // Make sure the base URI ends with a slash
+        $baseUri = rtrim($baseUri, '/') . '/';
+
+        $collections = $this->resourceManager->getCollections();
+
+        /** @var \Neos\Flow\ResourceManagement\Collection $collection */
+        foreach ($collections as $collection) {
+            $target = $collection->getTarget();
+            if ($target instanceof OverridableFileSystemTarget) {
+                $target->setCustomBaseUri($baseUri);
+            }
+        }
+    }
 }
+
+

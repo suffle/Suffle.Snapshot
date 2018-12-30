@@ -17,7 +17,7 @@ use Neos\Flow\Mvc\Controller\ControllerContext;
 use Suffle\Snapshot\Diff\DiffOutputBuilder;
 use Suffle\Snapshot\Fusion\FusionService;
 use Suffle\Snapshot\Fusion\FusionView;
-use Suffle\Snapshot\Traits\DummyContextTrait;
+use Suffle\Snapshot\Traits\SimulateContextTrait;
 use Suffle\Snapshot\Traits\OutputTrait;
 use Suffle\Snapshot\Traits\PackageTrait;
 
@@ -31,7 +31,7 @@ use SebastianBergmann\Diff\Differ;
  */
 class TestingService
 {
-    use DummyContextTrait, OutputTrait, PackageTrait;
+    use SimulateContextTrait, OutputTrait, PackageTrait;
 
     const UPDATE_SNAPSHOT_ANSWERS = array(
         "y" => "update this snapshot",
@@ -56,6 +56,11 @@ class TestingService
      * @var int >= 0
      */
     private $failedTests = 0;
+
+    /**
+     * @var array
+     */
+    private $failedPrototypes;
 
     /**
      * @var int >= 0
@@ -85,7 +90,12 @@ class TestingService
     /**
      * @var array
      */
-    private $sitePackageKeys;
+    private $sitePackages;
+
+    /**
+     * @var array
+     */
+    private $detailedTestResults;
 
     /**
      * @var ControllerContext
@@ -98,12 +108,42 @@ class TestingService
      * @param bool $interactive
      * @param $updateAll
      */
-    public function __construct(string $packageKey = null, $interactive = false, $updateAll)
+    public function __construct(string $packageKey = null, bool $interactive = false, bool $updateAll = false)
     {
-        $this->sitePackageKeys = $packageKey ? [$packageKey] : null;
+        $this->sitePackages = $packageKey ? array($this->getSitePackageByKey($packageKey)) : null;
         $this->controllerContext = $this->createDummyContext();
         $this->interactiveMode = $interactive;
         $this->updateAllSnapshots = $updateAll;
+    }
+
+    /**
+     * @return array
+     * @throws \Exception
+     * @throws \Neos\Flow\I18n\Exception\InvalidLocaleIdentifierException
+     * @throws \Neos\Flow\Mvc\Exception
+     * @throws \Neos\Flow\Security\Exception
+     * @throws \Neos\Fusion\Exception
+     * @throws \Neos\Neos\Domain\Exception
+     * @throws \Neos\Utility\Exception\FilesException
+     */
+    public function testAllPrototypes(): array
+    {
+        $this->reset();
+        $this->sitePackages = $this->sitePackages ?: $this->getSitePackages();
+
+        foreach($this->sitePackages as $sitePackage) {
+            $sitePackageKey = $sitePackage['packageKey'];
+            $this->injectBaseUriIntoFileSystemTargets($sitePackage['baseUri']);
+            $this->outputInfoText($sitePackageKey);
+            $this->outputNewLine();
+            $prototypesToSnapshot = $this->fusionService->getPrototypeNamesForTesting($sitePackageKey);
+
+            foreach($prototypesToSnapshot as $prototypeName) {
+                $this->testSinglePrototype($prototypeName, $sitePackageKey);
+            }
+        }
+
+        return $this->getStats();
     }
 
     /**
@@ -120,42 +160,16 @@ class TestingService
     public function testPrototype(string $prototypeName): array
     {
         $this->reset();
-        $this->sitePackageKeys = $this->sitePackageKeys ?: $this->getActiveSitePackageKeys();
+        $this->sitePackages = $this->sitePackages ?: $this->getSitePackages();
 
-        foreach($this->sitePackageKeys as $sitePackageKey) {
+        foreach($this->sitePackages as $sitePackage) {
+            $sitePackageKey = $sitePackage['packageKey'];
+            $this->injectBaseUriIntoFileSystemTargets($sitePackage['baseUri']);
             $this->outputInfoText($sitePackageKey);
             $this->outputNewLine();
             $this->testSinglePrototype($prototypeName, $sitePackageKey);
         }
 
-
-        return $this->getStats();
-    }
-
-    /**
-     * @return array
-     * @throws \Exception
-     * @throws \Neos\Flow\I18n\Exception\InvalidLocaleIdentifierException
-     * @throws \Neos\Flow\Mvc\Exception
-     * @throws \Neos\Flow\Security\Exception
-     * @throws \Neos\Fusion\Exception
-     * @throws \Neos\Neos\Domain\Exception
-     * @throws \Neos\Utility\Exception\FilesException
-     */
-    public function testAllPrototypes(): array
-    {
-        $this->reset();
-        $this->sitePackageKeys = $this->sitePackageKeys ?: $this->getActiveSitePackageKeys();
-
-        foreach($this->sitePackageKeys as $sitePackageKey) {
-            $this->outputInfoText($sitePackageKey);
-            $this->outputNewLine();
-            $prototypesToSnapshot = $this->fusionService->getPrototypeNamesForTesting($sitePackageKey);
-
-            foreach($prototypesToSnapshot as $prototypeName) {
-                $this->testSinglePrototype($prototypeName, $sitePackageKey);
-            }
-        }
 
         return $this->getStats();
     }
@@ -196,6 +210,10 @@ class TestingService
                 $this->outputInfo("No snapshot found for propSet %s", [$propSetName], 2);
                 $snapshotService->takeSnapshotOfPropSet($renderedPrototype, $prototypeName, $propSetName, $sitePackageKey);
                 $this->newSnapshots += 1;
+                $this->detailedTestResults[$prototypeName][$propSetName] = [
+                    'success' => false,
+                    'newSnapshot' => true
+                ];
                 continue;
             }
 
@@ -205,11 +223,15 @@ class TestingService
                 $this->outputInfo("Auto-update snapshot for propSet %s", [$propSetName], 2);
                 $snapshotService->takeSnapshotOfPropSet($renderedPrototype, $prototypeName, $propSetName, $sitePackageKey);
                 $this->newSnapshots += 1;
+                $this->detailedTestResults[$prototypeName][$propSetName] = [
+                    'success' => false,
+                    'newSnapshot' => true
+                ];
                 continue;
             }
 
             if (!$diff || $this->skipAllSnapshots || !$this->interactiveMode) {
-                $this->makeTest($diff, $propSetName);
+                $this->makeTest($diff, $propSetName, $prototypeName);
                 continue;
             }
 
@@ -224,9 +246,13 @@ class TestingService
                     case "y":
                         $snapshotService->takeSnapshotOfPropSet($renderedPrototype, $prototypeName, $propSetName, $sitePackageKey);
                         $this->newSnapshots += 1;
+                        $this->detailedTestResults[$prototypeName][$propSetName] = [
+                            'success' => false,
+                            'newSnapshot' => true
+                        ];
                         break;
                     case "n":
-                        $this->makeTest($diff, $propSetName);
+                        $this->makeTest($diff, $propSetName, $prototypeName);
                         break;
                     case "q":
                         throw new \Exception('Testing aborted');
@@ -235,10 +261,14 @@ class TestingService
                         $snapshotService->takeSnapshotOfPropSet($renderedPrototype, $prototypeName, $propSetName, $sitePackageKey);
                         $this->newSnapshots += 1;
                         $this->updateAllSnapshots = true;
+                        $this->detailedTestResults[$prototypeName][$propSetName] = [
+                            'success' => false,
+                            'newSnapshot' => true
+                        ];
                         break;
                     case "d":
                         $this->skipAllSnapshots = true;
-                        $this->makeTest($diff, $propSetName);
+                        $this->makeTest($diff, $propSetName, $prototypeName);
                         break;
                 }
             }
@@ -247,7 +277,7 @@ class TestingService
         $this->outputNewLine();
     }
 
-    private function makeTest($diff, $propSetName)
+    private function makeTest($diff, $propSetName, $prototypeName)
     {
         $this->totalTests += 1;
 
@@ -256,11 +286,23 @@ class TestingService
         } else {
             $this->testSuccess = false;
             $this->failedTests += 1;
+
+            if ($this->failedPrototypes && array_key_exists($prototypeName, $this->failedPrototypes)) {
+                array_push($this->failedPrototypes[$prototypeName], $propSetName);
+            } else {
+                $this->failedPrototypes[$prototypeName] = array($propSetName);
+            }
+
             $this->outputFailed($propSetName, [], 2);
             $this->outputNewLine();
             $this->outputTabbed($diff, [], 3);
             $this->outputNewLine();
         }
+
+        $this->detailedTestResults[$prototypeName][$propSetName] = [
+            'success' => !$diff,
+            'newSnapshot' => false
+        ];
     }
 
     protected function reset(): void
@@ -277,7 +319,9 @@ class TestingService
             'success' => $this->testSuccess,
             'newSnapshots' => $this->newSnapshots,
             'failedTests' => $this->failedTests,
-            'totalTests' => $this->totalTests
+            'totalTests' => $this->totalTests,
+            'detailedResults' => $this->detailedTestResults,
+            'failedPrototypes' => $this->failedPrototypes
         ];
     }
 }

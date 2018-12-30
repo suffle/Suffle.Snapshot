@@ -126,8 +126,6 @@ class FusionView extends BaseFusionView
         $prototypeConfigurations = [];
         $fusionAstArray = [];
 
-        $prototypeConfigurations['pure'] = $prototypeBaseConfiguration;
-
         // Set default prototype configuration
         if (array_key_exists('props', $snapshotConfiguration)) {
             $prototypeDefaultConfiguration = array_replace_recursive(
@@ -135,8 +133,11 @@ class FusionView extends BaseFusionView
                 $snapshotConfiguration['props']
             );
 
-            $prototypeConfigurations['default'] = $prototypeDefaultConfiguration;
+        } else {
+            $prototypeDefaultConfiguration = $prototypeBaseConfiguration;
         }
+
+        $prototypeConfigurations['default'] = $prototypeDefaultConfiguration;
 
         // Add configurations for propSets
         if (

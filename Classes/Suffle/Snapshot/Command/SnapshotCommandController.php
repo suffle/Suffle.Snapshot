@@ -108,9 +108,10 @@ class SnapshotCommandController extends CommandController
      */
     public function itemsCommand(string $packageKey = null): void
     {
-        $sitePackageKeys = $packageKey ? [$packageKey] : $this->getActiveSitePackageKeys();
+        $sitePackages = $packageKey ? $this->getSitePackageByKey($packageKey) : $this->getSitePackages();
 
-        foreach ($sitePackageKeys as $sitePackageKey) {
+        foreach ($sitePackages as $sitePackage) {
+            $sitePackageKey = $sitePackage['packageKey'];
             $this->outputLine($sitePackageKey);
             $testablePrototypes = $this->fusionService->getPrototypeNamesForTesting($sitePackageKey);
 
@@ -140,7 +141,6 @@ class SnapshotCommandController extends CommandController
         if ($stats['failedSnapshots']) {
             $this->output("<fg=red>" . $stats['failedSnapshots'] . " Snapshots could not be saved.</>" . PHP_EOL);
         }
-
 
         if (!$stats['success']) {
             throw new \Exception('Not all Snapshots could be written');
@@ -173,6 +173,12 @@ class SnapshotCommandController extends CommandController
             $this->output("<fg=red>" . $stats['failedTests'] . " Tests failed</>" . PHP_EOL);
         }
 
+        if($stats['failedPrototypes']) {
+            foreach ($stats['failedPrototypes'] as $key => $propSets) {
+                $propsetString = count($propSets) > 1 ? 'propsets' : 'propset';
+                $this->output("\t<fg=yellow>" . $key . " with " . $propsetString . ": " . join(', ', $propSets) . "</>" . PHP_EOL);
+            }
+        }
 
         if (!$stats['success']) {
             throw new \Exception('Snapshot Testing failed');

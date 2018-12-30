@@ -15,11 +15,12 @@ namespace Suffle\Snapshot\Service;
 use Neos\Flow\Mvc\Controller\ControllerContext;
 use Suffle\Snapshot\Fusion\FusionService;
 use Suffle\Snapshot\Fusion\FusionView;
-use Suffle\Snapshot\Traits\DummyContextTrait;
+use Suffle\Snapshot\Traits\SimulateContextTrait;
 use Suffle\Snapshot\Traits\OutputTrait;
 use Suffle\Snapshot\Traits\PackageTrait;
 
 use Neos\Flow\Annotations as Flow;
+
 
 
 /**
@@ -27,7 +28,7 @@ use Neos\Flow\Annotations as Flow;
  */
 class SnapshotService
 {
-    use DummyContextTrait, OutputTrait, PackageTrait;
+    use SimulateContextTrait, OutputTrait, PackageTrait;
 
     /**
      * @Flow\Inject
@@ -40,7 +41,6 @@ class SnapshotService
      * @var FileStorage
      */
     protected $fileStorage;
-
 
     /**
      * @var int >= 0
@@ -60,7 +60,7 @@ class SnapshotService
     /**
      * @var array
      */
-    private $sitePackageKeys;
+    private $sitePackages;
 
     /**
      * @var ControllerContext
@@ -73,7 +73,7 @@ class SnapshotService
      */
     public function __construct(string $packageKey = null)
     {
-        $this->sitePackageKeys = $packageKey ? [$packageKey] : null;
+        $this->sitePackages = $packageKey ? $this->getSitePackageByKey($packageKey) : null;
         $this->controllerContext = $this->createDummyContext();
     }
 
@@ -90,9 +90,11 @@ class SnapshotService
     public function takeSnapshotOfAllPrototypes(): array
     {
         $this->reset();
-        $this->sitePackageKeys = $this->sitePackageKeys ?: $this->getActiveSitePackageKeys();
+        $this->sitePackages = $this->sitePackages ?: $this->getSitePackages();
 
-        foreach($this->sitePackageKeys as $sitePackageKey) {
+        foreach($this->sitePackages as $sitePackage) {
+            $sitePackageKey = $sitePackage['packageKey'];
+            $this->injectBaseUriIntoFileSystemTargets($sitePackage['baseUri']);
             $this->outputInfoText($sitePackageKey);
             $this->outputNewLine();
             $prototypesToSnapshot = $this->fusionService->getPrototypeNamesForTesting($sitePackageKey);
@@ -119,9 +121,11 @@ class SnapshotService
     public function takeSnapshotOfPrototype($prototypeName): array
     {
         $this->reset();
-        $this->sitePackageKeys = $this->sitePackageKeys ?: $this->getActiveSitePackageKeys();
+        $this->sitePackages = $this->sitePackages ?: $this->getSitePackages();
 
-        foreach($this->sitePackageKeys as $sitePackageKey) {
+        foreach($this->sitePackages as $sitePackage) {
+            $sitePackageKey = $sitePackage['packageKey'];
+            $this->injectBaseUriIntoFileSystemTargets($sitePackage['baseUri']);
             $this->outputInfoText($sitePackageKey);
             $this->outputNewLine();
             $this->takeSinglePrototype($prototypeName, $sitePackageKey);
@@ -138,7 +142,7 @@ class SnapshotService
      * @return array
      * @throws \Neos\Utility\Exception\FilesException
      */
-    public function takeSnapshotOfPropSet(string $html, string $prototypeName, string $propSetName, string $sitePackageName): array
+    public function takeSnapshotOfPropSet($html, string $prototypeName, string $propSetName, string $sitePackageName): array
     {
         $this->reset();
         $this->takeSinglePropSet($html, $prototypeName, $propSetName, $sitePackageName);
@@ -166,8 +170,13 @@ class SnapshotService
      * @return bool
      * @throws \Neos\Utility\Exception\FilesException
      */
-    private function takeSinglePropSet(string $html, string $prototypeName, string $propSetName, string $sitePackageKey): bool
+    private function takeSinglePropSet($html, string $prototypeName, string $propSetName, string $sitePackageKey): bool
     {
+        if (!$html) {
+            $this->outputInfoText("Snapshot for PropSet " . $propSetName . " did not return any Markup. Skipped." . PHP_EOL, 2);
+            return true;
+        }
+
         if ($this->fileStorage->saveSnapshotByPropSet($html, $prototypeName, $propSetName, $sitePackageKey)) {
             $this->outputSuccess("Snapshot written for PropSet " . $propSetName . PHP_EOL, [], 2);
             return true;
@@ -195,6 +204,7 @@ class SnapshotService
         $prototypePreviewRenderPath = FusionService::RENDERPATH_DISCRIMINATOR . str_replace(['.', ':'], ['_', '__'], $prototypeName);
 
         $fusionView = new FusionView();
+
         $fusionView->setControllerContext($this->controllerContext);
         $fusionView->setFusionPath($prototypePreviewRenderPath);
         $fusionView->setPackageKey($sitePackageKey);

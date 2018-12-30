@@ -34,50 +34,50 @@ class Package extends BasePackage
      */
     public function boot(Bootstrap $bootstrap)
     {
-        $dispatcher = $bootstrap->getSignalSlotDispatcher();
+        // $dispatcher = $bootstrap->getSignalSlotDispatcher();
 
-        $context = $bootstrap->getContext();
-        if (!$context->isProduction()) {
-            $dispatcher->connect(Sequence::class, 'afterInvokeStep', function ($step) use ($bootstrap, $dispatcher) {
-                if ($step->getIdentifier() === 'neos.flow:systemfilemonitor') {
-                    $templateFileMonitor = FileMonitor::createFileMonitorAtBoot('Sitegeist_Monocle_Fusion_Files', $bootstrap);
-                    /**
-                     * @var PackageManagerInterface $packageManager
-                     */
-                    $packageManager = $bootstrap->getEarlyInstance(PackageManagerInterface::class);
+        // $context = $bootstrap->getContext();
+        // if (!$context->isProduction()) {
+        //     $dispatcher->connect(Sequence::class, 'afterInvokeStep', function ($step) use ($bootstrap, $dispatcher) {
+        //         if ($step->getIdentifier() === 'neos.flow:systemfilemonitor') {
+        //             $templateFileMonitor = FileMonitor::createFileMonitorAtBoot('Sitegeist_Monocle_Fusion_Files', $bootstrap);
+        //             /**
+        //              * @var PackageManagerInterface $packageManager
+        //              */
+        //             $packageManager = $bootstrap->getEarlyInstance(PackageManagerInterface::class);
 
-                    foreach ($packageManager->getAvailablePackages() as $packageKey => $package) {
-                        //
-                        // this is here to distinguish between flow and other packages
-                        // in flow 5 we can check wether the packe is a FlowPackage instead
-                        // @todo fix this after the support for neos 3.3 is dropped
-                        //
-                        if (method_exists($package, 'getResourcesPath')) {
-                            $templatesPath = $package->getResourcesPath() . 'Private/Fusion';
-                            if (is_dir($templatesPath)) {
-                                $templateFileMonitor->monitorDirectory($templatesPath);
-                            }
-                        }
-                    }
+        //             foreach ($packageManager->getAvailablePackages() as $packageKey => $package) {
+        //                 //
+        //                 // this is here to distinguish between flow and other packages
+        //                 // in flow 5 we can check wether the packe is a FlowPackage instead
+        //                 // @todo fix this after the support for neos 3.3 is dropped
+        //                 //
+        //                 if (method_exists($package, 'getResourcesPath')) {
+        //                     $templatesPath = $package->getResourcesPath() . 'Private/Fusion';
+        //                     if (is_dir($templatesPath)) {
+        //                         $templateFileMonitor->monitorDirectory($templatesPath);
+        //                     }
+        //                 }
+        //             }
 
-                    $templateFileMonitor->detectChanges();
-                    $templateFileMonitor->shutdownObject();
-                }
-            });
-        }
+        //             $templateFileMonitor->detectChanges();
+        //             $templateFileMonitor->shutdownObject();
+        //         }
+        //     });
+        // }
 
-        $flushTemplates = function ($identifier, $changedFiles) use ($bootstrap) {
-            if ($identifier !== 'Sitegeist_Monocle_Fusion_Files') {
-                return;
-            }
+        // $flushTemplates = function ($identifier, $changedFiles) use ($bootstrap) {
+        //     if ($identifier !== 'Sitegeist_Monocle_Fusion_Files') {
+        //         return;
+        //     }
 
-            if ($changedFiles === []) {
-                return;
-            }
+        //     if ($changedFiles === []) {
+        //         return;
+        //     }
 
-            $templateCache = $bootstrap->getObjectManager()->get(CacheManager::class)->getCache('Sitegeist_Monocle_Fusion');
-            $templateCache->flush();
-        };
-        $dispatcher->connect(FileMonitor::class, 'filesHaveChanged', $flushTemplates);
+        //     $templateCache = $bootstrap->getObjectManager()->get(CacheManager::class)->getCache('Sitegeist_Monocle_Fusion');
+        //     $templateCache->flush();
+        // };
+        // $dispatcher->connect(FileMonitor::class, 'filesHaveChanged', $flushTemplates);
     }
 }

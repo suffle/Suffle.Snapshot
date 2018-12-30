@@ -13,7 +13,7 @@ namespace Suffle\Snapshot\Traits;
  * source code.
  */
 
-use Neos\Flow\Annotations as Flow;
+use Neos\Neos\Domain\Repository\SiteRepository;
 
 /**
  * Utility trait to determine package keys
@@ -22,34 +22,84 @@ trait PackageTrait
 {
 
     /**
-     * @Flow\Inject
-     * @var \Neos\Flow\Package\PackageManagerInterface
+     * @return array
      */
-    protected $packageManager;
+    protected function getFirstOnlineSitePackage() {
+        $siteRepository = new SiteRepository();
+        $sitePackage = $siteRepository->findFirstOnline();
 
-    /**
-     * Determine the default site package key
-     *
-     * @return string
-     */
-    protected function getDefaultSitePackageKey(): string
-    {
-        $sitePackageKeys = $this->getActiveSitePackageKeys();
-        return reset($sitePackageKeys);
+        return array(
+            'packageKey' => $sitePackage->getSiteResourcesPackageKey(),
+            'baseUri' => $this->generateBaseUri($sitePackage->getPrimaryDomain())
+        );
     }
 
     /**
-     * Get a list of all active site package keys
+     * @param String $packageKey
      * @return array
      */
-    protected function getActiveSitePackageKeys(): array
+    protected function getSitePackageByKey(String $packageKey) : array
     {
-        $sitePackages = $this->packageManager->getFilteredPackages('available', null, 'neos-site');
-        $result = [];
-        foreach ($sitePackages as $sitePackage) {
-            $packageKey = $sitePackage->getPackageKey();
-            $result[] = $packageKey;
+        $siteRepository = new SiteRepository();
+        $sitePackages = $siteRepository->findAll();
+
+        foreach($sitePackages as $sitePackage) {
+            if ($sitePackage->getSiteResourcesPackageKey() === $packageKey) {
+                return array(
+                    'packageKey' => $sitePackage->getSiteResourcesPackageKey(),
+                    'baseUri' => $this->generateBaseUri($sitePackage->getPrimaryDomain())
+                );
+            }
         }
-        return $result;
+
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getSitePackages(): array
+    {
+        $siteRepository = new SiteRepository();
+        $sitePackages = $siteRepository->findAll();
+        $sites = [];
+
+        foreach($sitePackages as $sitePackage) {
+            $sites[] = array(
+                'packageKey' => $sitePackage->getSiteResourcesPackageKey(),
+                'baseUri' => $this->generateBaseUri($sitePackage->getPrimaryDomain())
+            );
+        }
+
+        return $sites;
+    }
+
+
+    /**
+     * @param $domain \Neos\Neos\Domain\Model\Domain
+     * @return string
+     */
+    private function generateBaseUri($domain) {
+        $scheme = $domain->getScheme();
+        $port = $domain->getPort();
+
+        $baseUri = '';
+        $baseUri .= $scheme ? : 'http';
+        $baseUri .= '://';
+        $baseUri .= $domain->getHostname();
+
+        if ($port !== null) {
+            switch ($scheme) {
+                case 'http':
+                    $baseUri .= ($port !== 80 ? ':' . $port : '');
+                    break;
+                case 'https':
+                    $baseUri .= ($port !== 443 ? ':' . $port : '');
+                    break;
+                default:
+                    $baseUri .= (isset($port) ? ':' . $port : '');
+            }
+        }
+        return $baseUri;
     }
 }
