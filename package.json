@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "A Flow package to perform snapshot tests of fusion components",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/suffle/Suffle.Snapshot.git"
@@ -20,7 +17,25 @@
   "bugs": {
     "url": "https://github.com/suffle/Suffle.Snapshot/issues"
   },
-  "homepage": "https://github.com/suffle/Suffle.Snapshot#readme"
-
-
+  "homepage": "https://github.com/suffle/Suffle.Snapshot#readme",
+  "dependencies": {
+    "react": "^16.7.0",
+    "react-dom": "^16.7.0",
+    "react-scripts": "2.1.3"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }

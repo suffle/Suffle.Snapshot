@@ -1,9 +1,37 @@
 Suffle:
   Snapshot:
     snapshotSavePath: '%FLOW_PATH_DATA%Persistent/fusionSnapshots/'
+    annotationKey: 'styleguide'
+
 Neos:
   Flow:
+    mvc:
+      routes:
+        'Suffle.Snapshot':
+          position: 'before Neos.Neos'
+
+    security:
+      authentication:
+        providers:
+          Neos.Neos:Backend:
+            requestPatterns:
+              'Suffle.Snapshot:snapshotControllers':
+                pattern: ControllerObjectName
+                patternOptions:
+                  controllerObjectNamePattern: 'Suffle\Snapshot\Controller\.*'
+
     resource:
       targets:
         localWebDirectoryStaticResourcesTarget:
           target: Suffle\Snapshot\Resource\Target\OverridableFileSystemTarget
+
+  Neos:
+    modules:
+      administration:
+        submodules:
+          snapshot:
+            label: Snapshot Testing
+            controller: \Suffle\Snapshot\Controller\SnapshotController
+            description: 'A styleguide for fusion prototypes and the idea of components'
+            icon: icon-camera
+            privilegeTarget: 'Suffle.Snapshot:Backend.Snapshot'

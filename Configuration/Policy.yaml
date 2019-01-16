@@ -1,0 +1,20 @@
+privilegeTargets:
+  'Neos\Flow\Security\Authorization\Privilege\Method\MethodPrivilege':
+    'Suffle.Snapshot:Backend.Snapshot':
+      matcher: 'method(Suffle\Snapshot\Controller\SnapshotController->(index)Action())'
+    'Suffle.Snapshot:Overview.Snapshot':
+      matcher: 'method(Suffle\Snapshot\Controller\OverviewController->(index)Action())'
+    'Suffle.Snapshot:Snapshot.Preview':
+      matcher: 'method(Sitegeist\Monocle\Controller\PreviewController->(index)Action())'
+    'Suffle.Snapshot:Snapshot.Api':
+      matcher: 'method(Sitegeist\Monocle\Controller\ApiController->(styleguideObjects|styleguideResources|sitePackages|viewportPresets|localePresets|renderPrototype)Action())'
+
+roles:
+  'Neos.Neos:Administrator':
+    privileges:
+      -
+        privilegeTarget: 'Suffle.Snapshot:Backend.Snapshot'
+        permission: GRANT
+      -
+        privilegeTarget: 'Suffle.Snapshot:Overview.Snapshot'
+        permission: GRANT

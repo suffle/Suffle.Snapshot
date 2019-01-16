@@ -1,0 +1,57 @@
+<f:layout name="BackendSubModule" />
+
+<f:section name="content">
+    <h1>Test results for {activeSite}</h1>
+    <table>
+        <tr>
+            <td>Total tests</td>
+            <td>{testResults.totalTests}</td>
+        </tr>
+        <tr>
+            <td>New snapshots</td>
+            <td>{testResults.newSnapshots}</td>
+        </tr>
+        <tr>
+            <td>Successful tests</td>
+            <td>{testResults.totalTests - testResults.failedTests}</td>
+        </tr>
+        <tr>
+            <td>Failed tests</td>
+            <td>{testResults.failedTests}</td>
+        </tr>
+        <tr>
+            <td>Testing successful</td>
+            <td><span>{success}</span></td>
+        </tr>
+    </table>
+
+    <div>
+        <div class="button-container">
+            <a class="neos-button" target="_blank" href="{f:uri.action(action:'index', controller:'overview', package:'Suffle.Snapshot', useParentRequest: 1)}">Open Test Results in new Window <i class="icon-external-link"></i></a>
+        </div>
+        <p>The Test-Result module opens in a new browser window</p>
+    </div>
+
+
+<!--    <ul>
+        <f:for each="{testResults.detailedResults}" as="result" key="prototypeName">
+            <li>
+                <h2>{prototypeName}</h2><a href="/snapshot/diff/{activeSite}/{prototypeName}" target="_blank">To Diff</a>
+                <table>
+                    <tr>
+                        <th>PropSetName</th>
+                        <th>Test result</th>
+                        <th>New Snapshot</th>
+                    </tr>
+                    <f:for each="{result}" as="propSet" key="propSetName">
+                        <tr>
+                            <td>{propSetName}</td>
+                            <td><f:if condition="{propSet.success}"><f:then>True</f:then><f:else>False</f:else></f:if></td>
+                            <td><f:if condition="{propSet.newSnapshot}"><f:then>True</f:then><f:else>False</f:else></f:if></td>
+                        </tr>
+                    </f:for>
+                </table>
+            </li>
+        </f:for>
+    </ul>-->
+</f:section>
