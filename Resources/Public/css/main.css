@@ -1,0 +1,141 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+._33fGN2uJAMY8e2V_YOQEX1 {
+    display: flex;
+    align-items: center;
+    position: relative;
+	display: inline-block;
+	height: 40px;
+	min-width: 40px;
+	padding: 0 16px;
+	border: 0;
+	-webkit-font-smoothing: antialiased;
+	vertical-align: middle;
+	width: auto;
+	color: #FFF;
+	cursor: pointer;
+	background: #323232;
+    font-size: 14px;
+    box-sizing: border-box;
+    font-family: 'Work Sans', sans-serif;
+	font-weight: 400;
+}
+
+._33fGN2uJAMY8e2V_YOQEX1:focus {
+    outline: none;
+}
+
+._1yls6iV_0qRHMPMixHM2I5 {
+    position: relative;
+}
+._1Uhct3kE618kMb-GGYqt9 {
+    width: 100vh;
+    max-width: 200px;
+    z-index: 999;
+    position: relative;
+}
+
+._1-PfAtjhm34TGjVrZx60b9 {
+    max-height: calc(100vh - 2 * 40px);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+._1RQtsbUnvmwgRxj3hVmgl- {
+    margin: 0;
+    border-color: #999;
+}
+
+._2GG8yx3F1_UyXFaSJHFSkN {
+    cursor: pointer;
+    color: #FFF;
+    background-color: #323232;
+    padding: 1em;
+    width: 100%;
+    text-align: left;
+    font-size: 14px;
+    border: none;
+}
+._2GG8yx3F1_UyXFaSJHFSkN:hover {
+    background-color: #00ADEE;
+}
+
+._33kP4X8PB9Vvbb66iV4uce {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.DvpdSMvyOA3Sec0poiq0P {
+    font-size: 120%;
+    display: inline-block;
+    margin-right: .4em;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.scRORpwUVDkRbejdCwmcm {
+  text-align: center;
+}
+
+._1qkjNQ_jC4cerkxfN-qcs0 {
+  -webkit-animation: _2aBGKRJSFkASbIy1c93OyZ infinite 20s linear;
+          animation: _2aBGKRJSFkASbIy1c93OyZ infinite 20s linear;
+  height: 40vmin;
+}
+
+._3kKXeKMFv-qWM7pCPMgJRa {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+._2G7PsrdCqxYLPNaPq8VylW {
+  color: #61dafb;
+}
+
+@-webkit-keyframes _2aBGKRJSFkASbIy1c93OyZ {
+  from {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+
+@keyframes _2aBGKRJSFkASbIy1c93OyZ {
+  from {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+
+
+/*# sourceMappingURL=main.css.map*/

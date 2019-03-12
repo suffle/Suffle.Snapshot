@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <link href="https://fonts.googleapis.com/css?family=Work+Sans" rel="stylesheet">
-        <link rel="stylesheet" href="{f:uri.resource(path: 'resource://Suffle.Snapshot/Public/Styles/App.css')}" />
+        <link rel="stylesheet" href="{f:uri.resource(path: 'resource://Suffle.Snapshot/Public/css/main.css')}" />
     </head>
     <body style="padding:0; background-color:#222;">
         <div
@@ -13,13 +13,11 @@
 
             data-overview-uri="{f:uri.action(action:'index', controller:'overview', package:'Suffle.Snapshot')}"
             data-current-site-package-key="{currentSitePackageKey}"
-            data-preview-uri="{f:uri.action(action:'index', controller:'preview', package:'Suffle.Snapshot')}"
 
-            data-tested-prototypes-endpoint="{f:uri.action(action:'testedPrototypes', controller:'api', package:'Suffle.Snapshot')}"
-            data-saved-prototype-endpoint="{f:uri.action(action:'savedPrototype', controller:'api', package:'Suffle.Snapshot')}"
-            data-render-prototype-endpoint="{f:uri.action(action:'renderPrototype', controller:'api', package:'Suffle.Snapshot')}"
+            data-snapshot-objects-endpoint="{f:uri.action(action:'snapshotObjects', controller:'api', package:'Suffle.Snapshot')}"
+            data-snapshot-data-endpoint="{f:uri.action(action:'snapshotData', controller:'api', package:'Suffle.Snapshot')}"
             data-site-packages-endpoint="{f:uri.action(action:'sitePackages', controller:'api', package:'Suffle.Snapshot')}"
             ></div>
-        <script src="{f:uri.resource(path: 'resource://Suffle.Snapshot/Public/JavaScript/App.js')}"></script>
+        <script src="{f:uri.resource(path: 'resource://Suffle.Snapshot/Public/js/main.js')}"></script>
     </body>
 </html>
