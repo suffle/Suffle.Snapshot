@@ -35,6 +35,15 @@ trait PackageTrait
     }
 
     /**
+     * @return string
+     */
+    protected function getFirstOnlineSitePackageKey() {
+        $sitePackage = $this->getFirstOnlineSitePackage();
+
+        return  $sitePackage['packageKey'];
+    }
+
+    /**
      * @param String $packageKey
      * @return array
      */

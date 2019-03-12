@@ -19,10 +19,6 @@ use Neos\Flow\Mvc\View\ViewInterface;
 use Neos\Flow\Mvc\Controller\ActionController;
 use Suffle\Snapshot\Traits\PackageTrait;
 
-/**
- * Class ModuleController
- * @package Suffle\Monocle\Controller
- */
 class OverviewController extends ActionController
 {
 
