@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "neos/neos": "*",
+        "neos/neos": "~4.2 || dev-master",
         "sebastian/diff": "3.*"
     },
     "autoload": {
