@@ -3,7 +3,8 @@ export declare namespace Prototype {
     type Prototype = {
         name: string,
         data?: PrototypeData
-        loading: boolean
+        loading: boolean,
+        currentPropSet: string
     }
 
     type PrototypeData = {

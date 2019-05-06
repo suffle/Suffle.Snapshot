@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import 'react-gh-like-diff/lib/diff2html.css';
 import App from './components/App';
 import * as serviceWorker from './serviceWorker';
 import getEnvData from './config/env'

@@ -17,6 +17,9 @@ const typescriptFormatter = require('react-dev-utils/typescriptFormatter');
 const brand = require('@neos-project/brand');
 const brandVars = brand.generateCssVarsObject(brand.config, 'brand');
 
+const styles = require('./styles/styleConstants');
+const styleVars = styles.generateCssVarsObject(styles.config);
+
 module.exports = function(webpackEnv) {
   const isEnvDevelopment = webpackEnv === 'development';
   const isEnvProduction = webpackEnv === 'production';
@@ -92,6 +95,9 @@ module.exports = function(webpackEnv) {
       plugins: [
         PnpWebpackPlugin
       ],
+      alias: {
+        '@neos-project/react-ui-components/src': path.resolve('Resources/Private/App/src/Neos')
+      }
     },
     resolveLoader: {
       plugins: [
@@ -180,8 +186,32 @@ module.exports = function(webpackEnv) {
               },
             },
             {
+              test: [/node_modules\/@fortawesome\/fontawesome-svg-core\/styles\.css$/,
+                /node_modules\/react-gh-like-diff\/lib\/diff2html\.css$/
+              ],
+              use: [
+                {
+                  loader: MiniCssExtractPlugin.loader,
+                },
+                {
+                  loader: 'css-loader'
+                }, {
+                    loader: 'string-replace-loader',
+                    options: {
+                        search: 'svg-inline--fa',
+                        replace: 'neos-svg-inline--fa',
+                        flags: 'g'
+                    }
+                }
+              ],
+            },
+            {
               test: /\.css$/,
-              exclude: /\.module\.css$/,
+              exclude: [
+                /node_modules\/@fortawesome\/fontawesome-svg-core\/styles\.css$/,
+                /node_modules\/react-gh-like-diff\/lib\/diff2html\.css$/,
+                /\.module\.css$/
+              ],
               use: [
                 {
                   loader: MiniCssExtractPlugin.loader,
@@ -224,8 +254,11 @@ module.exports = function(webpackEnv) {
                             // Font sizes
                             //
                             '--baseFontSize': '14px'
-                        }, brandVars)
+                        }, styleVars)
                     }),
+                    require('postcss-import')(),
+                    require('postcss-nested')(),
+                    require('postcss-hexrgba')()
                     ],
                     sourceMap: false,
                   },

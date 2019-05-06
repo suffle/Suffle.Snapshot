@@ -2,11 +2,14 @@ import React, { SFC } from 'react';
 
 import SitePackageDropdown from '../SitePackageDropdown';
 
-interface HeaderProps {}
+interface HeaderProps {
+    className?: string
+}
 
-const Header: SFC<HeaderProps> = (props) => {
-    return <div>
+const Header: SFC<HeaderProps> = ({className}) => {
+    return <div className={className}>
         <SitePackageDropdown />
     </div>
 }
+
 export default Header;

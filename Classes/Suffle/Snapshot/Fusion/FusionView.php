@@ -107,6 +107,20 @@ class FusionView extends BaseFusionView
         return $output;
     }
 
+    public function renderPrototype($prototypeName)
+    {
+        $fusionAst = $this->fusionService->getMergedFusionObjectTreeForSitePackage($this->getOption('packageKey'));
+        $fusionPath = sprintf('/<%s>', $prototypeName);
+        $fusionRuntime = new FusionRuntime($fusionAst, $this->controllerContext);
+        $fusionRuntime->pushContextArray($this->variables);
+
+        try {
+            return $fusionRuntime->render($fusionPath);
+        } catch (\RuntimeException $exception) {
+            throw $exception->getPrevious();
+        }
+    }
+
     /**
      * Override props via parameters, props and propSet configuration
      *

@@ -8,7 +8,8 @@ const getInitialState = ({
     currentSitePackageKey,
     snapshotObjectsEndpoint,
     snapshotDataEndpoint,
-    sitePackagesEndpoint}: Config.Env): {
+    sitePackagesEndpoint,
+    previewMarkupEndpoint}: Config.Env): {
         endpoints: Config.Endpoints,
         sitePackages: Packages.SitePackages,
         currentPrototype: Prototype.Prototype,
@@ -20,7 +21,8 @@ const getInitialState = ({
                 snapshotObjectsEndpoint,
                 snapshotDataEndpoint,
                 sitePackagesEndpoint,
-                loginEndpoint
+                loginEndpoint,
+                previewMarkupEndpoint
             },
             sitePackages: {
                 currentSitePackageKey: currentSitePackageKey,
@@ -30,6 +32,7 @@ const getInitialState = ({
                 name: '',
                 data: null,
                 loading: false,
+                currentPropSet: ''
             },
             availablePrototypes: [],
             loading: true

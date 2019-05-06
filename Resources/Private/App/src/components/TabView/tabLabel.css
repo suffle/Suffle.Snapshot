@@ -1,0 +1,24 @@
+.labelContainer {
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 14px;
+    position: relative;
+    top: 1px;
+    border-bottom: 1px solid transparent;
+
+    /* subtract the size of padding */
+    padding: var(--spacing-Full);
+
+    color: var(--colors-ContrastBrighter);
+}
+
+.labelContainer--highlighted {
+    color: var(--colors-ContrastBrightest);
+    border: 1px solid var(--colors-ContrastBright);
+    border-bottom-color: var(--colors-ContrastDarker);
+}
+
+.labelIcon {
+    color: inherit;
+    font-size: 18px;
+}

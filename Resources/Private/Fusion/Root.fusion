@@ -1,0 +1,69 @@
+prototype(Suffle.Snapshot:Preview.Page) < prototype(Neos.Fusion:Array) {
+
+    # Only the opening html tag for the page. This is done to avoid deep nesting of TypoScript paths for integrators.
+    htmlTag = Neos.Fusion:Tag {
+        @position = 'start'
+        tagName = 'html'
+        omitClosingTag = TRUE
+    }
+
+    # The opening head tag for the page. This is done to avoid deep nesting of TypoScript paths for integrators.
+    headTag = Neos.Fusion:Tag {
+        @position = 'after htmlTag'
+        tagName = 'head'
+        omitClosingTag = TRUE
+    }
+
+    # The content of the head tag, integrators can add their own head content in this array.
+    head = Neos.Fusion:Array {
+        @position = 'after headTag'
+
+        characterSetMetaTag = Neos.Fusion:Tag {
+            @position = 'start 10'
+            tagName = 'meta'
+            attributes {
+                charset = 'UTF-8'
+            }
+        }
+
+        # Link tags for stylesheets in the head should go here
+        stylesheets = Neos.Fusion:Array
+
+        # Script includes in the head should go here
+        javascripts = Neos.Fusion:Array {
+            @position = 'after stylesheets'
+        }
+    }
+
+    closingHeadTag = '</head>'
+    closingHeadTag.@position = 'after head'
+
+
+	neosBackendMetaData >
+
+    # The opening body tag for the page. This is done to avoid deep nesting of TypoScript paths for integrators.
+    bodyTag = Neos.Fusion:Tag {
+        @position = '20'
+        tagName = 'body'
+        omitClosingTag = TRUE
+    }
+
+
+    # Content of the body tag. To be defined by the integrator.
+    body = Neos.Fusion:Tag {
+        attributes {
+            id = 'preview-container'
+        }
+        content = ''
+    }
+
+
+    closingBodyTag = '</body>'
+    closingBodyTag.@position = 'end 100'
+
+    closingHtmlTag = '</html>'
+    closingHtmlTag.@position = 'end 200'
+
+    @exceptionHandler = 'Neos\\Neos\\Fusion\\ExceptionHandlers\\PageHandler'
+
+}

@@ -3,6 +3,7 @@ import axios from 'axios';
 
 import { SET_CURRENT_SITE_PACKAGE_KEY, SET_SITE_PACKAGE_DATA } from "../actions/packages";
 import { SET_LOADING_STATE } from "../actions/loadingState";
+import { SET_PREVIEW_MARKUP } from "../actions/previewMarkup";
 import { getEndpoints, getCurrentSitePackageKey, getSelectedPrototype, getAvailablePrototypes } from "./selectors";
 import { SET_CURRENT_PROTOTYPE } from "../actions/prototype";
 
@@ -16,6 +17,20 @@ function* getAllPrototypes(sitePackageKey: string) {
         yield put({type: SET_SITE_PACKAGE_DATA, availablePrototypes});
     } catch(error) {
         yield put({type: SET_SITE_PACKAGE_DATA, availablePrototypes: []});
+        console.error('Fetch prototypes error', error);
+    }
+}
+
+function* getPreviewMarkup(sitePackageKey: string) {
+    const endpoints = yield select(getEndpoints);
+
+    try {
+        const request = yield axios.get(`${endpoints.previewMarkupEndpoint}?packageKey=${sitePackageKey}`);
+        const previewMarkup = request && request.data  && request.data.previewMarkup || '';
+
+        yield put({type: SET_PREVIEW_MARKUP, previewMarkup});
+    } catch(error) {
+        yield put({type: SET_PREVIEW_MARKUP, previewMarkup: ''});
         console.error('Fetch prototypes error', error);
     }
 }
@@ -39,6 +54,7 @@ function* setSitePackageData(action) {
     yield put({type: SET_LOADING_STATE, loadingState: true});
     yield getAllPrototypes(action.sitePackageKey);
     yield setCurrentPrototype();
+    yield getPreviewMarkup(action.sitePackageKey);
     yield put({type: SET_LOADING_STATE, loadingState: false});
 };
 

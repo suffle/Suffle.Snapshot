@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <link href="https://fonts.googleapis.com/css?family=Work+Sans" rel="stylesheet">
         <link rel="stylesheet" href="{f:uri.resource(path: 'resource://Suffle.Snapshot/Public/css/main.css')}" />
+        <link rel="stylesheet" href="{f:uri.resource(path: 'resource://Suffle.Snapshot/Public/css/prism.css')}" />
     </head>
     <body style="padding:0; background-color:#222;">
         <div
@@ -17,6 +18,7 @@
             data-snapshot-objects-endpoint="{f:uri.action(action:'snapshotObjects', controller:'api', package:'Suffle.Snapshot')}"
             data-snapshot-data-endpoint="{f:uri.action(action:'snapshotData', controller:'api', package:'Suffle.Snapshot')}"
             data-site-packages-endpoint="{f:uri.action(action:'sitePackages', controller:'api', package:'Suffle.Snapshot')}"
+            data-preview-markup-endpoint="{f:uri.action(action:'previewMarkup', controller:'api', package:'Suffle.Snapshot')}"
             ></div>
         <script src="{f:uri.resource(path: 'resource://Suffle.Snapshot/Public/js/main.js')}"></script>
     </body>

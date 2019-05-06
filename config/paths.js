@@ -24,19 +24,6 @@ function ensureSlash(inputPath, needsSlash) {
 
 const getPublicUrl = () => envPublicUrl ;
 
-// We use `PUBLIC_URL` environment variable or "homepage" field to infer
-// "public path" at which the app is served.
-// Webpack needs to know it to put the right <script> hrefs into HTML even in
-// single-page apps that may serve index.html for nested URLs like /todos/42.
-// We can't use a relative path in HTML because we don't want to load something
-// like /todos/42/static/js/bundle.7289d.js. We have to know the root.
-function getServedPath() {
-  const publicUrl = getPublicUrl();
-  const servedUrl =
-    envPublicUrl || (publicUrl ? url.parse(publicUrl).pathname : '/');
-  return ensureSlash(servedUrl, true);
-}
-
 const moduleFileExtensions = [
   'web.mjs',
   'mjs',
@@ -49,6 +36,7 @@ const moduleFileExtensions = [
   'json',
   'web.jsx',
   'jsx',
+  'css'
 ];
 
 // Resolve file paths in the same order as webpack
@@ -77,7 +65,6 @@ module.exports = {
   appTsConfig: resolveApp('tsconfig.json'),
 
   appNodeModules: resolveApp('node_modules'),
-  publicUrl: getPublicUrl(resolveApp('package.json')),
   servedPath: path.resolve('./Resources/Public/'),
 };
 

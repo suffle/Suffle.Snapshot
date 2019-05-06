@@ -5,13 +5,15 @@ export declare namespace Config {
         currentSitePackageKey: string,
         snapshotObjectsEndpoint: string,
         snapshotDataEndpoint: string,
-        sitePackagesEndpoint: string
+        sitePackagesEndpoint: string,
+        previewMarkupEndpoint: string
     }
 
     type Endpoints = {
         loginEndpoint: string,
         snapshotObjectsEndpoint: string,
         snapshotDataEndpoint: string,
-        sitePackagesEndpoint: string
+        sitePackagesEndpoint: string,
+        previewMarkupEndpoint: string
     }
 }

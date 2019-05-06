@@ -2,6 +2,7 @@ Suffle:
   Snapshot:
     snapshotSavePath: '%FLOW_PATH_DATA%Persistent/fusionSnapshots/'
     annotationKey: 'styleguide'
+    previewPrototypeName: 'Suffle.Snapshot:Preview.Page'
 
 Neos:
   Flow:
@@ -26,6 +27,9 @@ Neos:
           target: Suffle\Snapshot\Resource\Target\OverridableFileSystemTarget
 
   Neos:
+    fusion:
+      autoInclude:
+        Suffle.Snapshot: true
     modules:
       administration:
         submodules:

@@ -5,3 +5,5 @@ export const getAvailableSitePackageKeys = (state): string[] => state.sitePackag
 export const getEndpoints = (state): Config.Endpoints => state.endpoints;
 export const getSelectedPrototype = (state): string => state.currentPrototype && state.currentPrototype.name;
 export const getAvailablePrototypes = (state): string => state.availablePrototypes;
+export const getPropSets = (state): string => state.currentPrototype && state.currentPrototype.data;
+export const getCurrentPropSet = (state): string => state.currentPrototype && state.currentPrototype.currentPropSet;

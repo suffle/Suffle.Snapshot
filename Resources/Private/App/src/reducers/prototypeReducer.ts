@@ -1,7 +1,9 @@
 import {
     REQUEST_PROTOTYPE_DATA,
     SET_CURRENT_PROTOTYPE,
-    SET_PROTOTYPE_DATA
+    SET_PROTOTYPE_DATA,
+    SET_CURRENT_PROPSET,
+    SET_PROTOTYPE_LOADING_STATE
 } from '../actions/prototype';
 
 const setCurrentPrototype = (state, action) => ({
@@ -13,19 +15,29 @@ const setCurrentPrototype = (state, action) => ({
 const requestPrototypeData = (state) => ({
     ...state,
     data: null,
-    loading: true
 });
 
-const setPrototypeData = (state, action) => ({
+const setPrototypeData = (state, {prototypeData}) => ({
     ...state,
-    data: action.prototypeData,
-    loading: false
+    data: prototypeData,
 });
+
+const setCurrentPropSet = (state, {propSetName}) => ({
+    ...state,
+    currentPropSet: propSetName
+})
+
+const setLoadingState = (state, {loading}) => ({
+    ...state,
+    loading
+})
 
 const functionMapper = {
     [SET_CURRENT_PROTOTYPE]: setCurrentPrototype,
     [REQUEST_PROTOTYPE_DATA]: requestPrototypeData,
-    [SET_PROTOTYPE_DATA]: setPrototypeData
+    [SET_PROTOTYPE_DATA]: setPrototypeData,
+    [SET_CURRENT_PROPSET]: setCurrentPropSet,
+    [SET_PROTOTYPE_LOADING_STATE]: setLoadingState
 }
 
 function prototypeReducer(state = {}, action) {

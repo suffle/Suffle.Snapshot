@@ -7,7 +7,7 @@ privilegeTargets:
     'Suffle.Snapshot:Snapshot.Preview':
       matcher: 'method(Sitegeist\Monocle\Controller\PreviewController->(index)Action())'
     'Suffle.Snapshot:Snapshot.Api':
-      matcher: 'method(Suffle\Snapshot\Controller\ApiController->(sitePackages|snapshotData|snapshotObjects)Action())'
+      matcher: 'method(Suffle\Snapshot\Controller\ApiController->(sitePackages|snapshotData|snapshotObjects|previewMarkup)Action())'
 
 roles:
   'Neos.Neos:Administrator':

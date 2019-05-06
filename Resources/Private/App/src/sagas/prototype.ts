@@ -1,10 +1,8 @@
 import { takeLatest, put, select } from "redux-saga/effects";
 import axios from 'axios';
 
-import { SET_CURRENT_SITE_PACKAGE_KEY, SET_SITE_PACKAGE_DATA } from "../actions/packages";
-import { SET_LOADING_STATE } from "../actions/loadingState";
-import { getEndpoints, getCurrentSitePackageKey, getSelectedPrototype, getAvailablePrototypes } from "./selectors";
-import { SET_CURRENT_PROTOTYPE, REQUEST_PROTOTYPE_DATA, SET_PROTOTYPE_DATA } from "../actions/prototype";
+import { getEndpoints, getCurrentSitePackageKey, getPropSets, getCurrentPropSet } from "./selectors";
+import { SET_CURRENT_PROTOTYPE, REQUEST_PROTOTYPE_DATA, SET_PROTOTYPE_DATA, SET_CURRENT_PROPSET, SET_PROTOTYPE_LOADING_STATE } from "../actions/prototype";
 
 function* getPrototypeData(prototypeName: string) {
     const endpoints = yield select(getEndpoints);
@@ -21,9 +19,28 @@ function* getPrototypeData(prototypeName: string) {
     }
 }
 
+function* setCurrentPropSet() {
+    const propSets = yield select(getPropSets);
+    const currentPropSet = yield select(getCurrentPropSet);
+
+    if (!propSets) {
+        yield put({type: SET_CURRENT_PROPSET, propSetName: ''});
+        return;
+    }
+
+    if (!currentPropSet || !propSets.hasOwnProperty(currentPropSet)) {
+        const newPropSet = propSets.hasOwnProperty('default') ? 'default' : Object.keys(propSets)[0];
+        yield put({type: SET_CURRENT_PROPSET, propSetName: newPropSet});
+    }
+}
+
 function* setPrototypeData(action) {
-    yield put({type: REQUEST_PROTOTYPE_DATA, loadingState: true});
+    yield put({type: SET_PROTOTYPE_LOADING_STATE, loading: true});
+    yield put({type: REQUEST_PROTOTYPE_DATA});
     yield getPrototypeData(action.prototypeName);
+    yield setCurrentPropSet();
+    yield put({type: SET_PROTOTYPE_LOADING_STATE, loading: false});
+
 };
 
 export default function* watchPrototypeChange() {

@@ -31,27 +31,4 @@
         </div>
         <p>The Test-Result module opens in a new browser window</p>
     </div>
-
-
-<!--    <ul>
-        <f:for each="{testResults.detailedResults}" as="result" key="prototypeName">
-            <li>
-                <h2>{prototypeName}</h2><a href="/snapshot/diff/{activeSite}/{prototypeName}" target="_blank">To Diff</a>
-                <table>
-                    <tr>
-                        <th>PropSetName</th>
-                        <th>Test result</th>
-                        <th>New Snapshot</th>
-                    </tr>
-                    <f:for each="{result}" as="propSet" key="propSetName">
-                        <tr>
-                            <td>{propSetName}</td>
-                            <td><f:if condition="{propSet.success}"><f:then>True</f:then><f:else>False</f:else></f:if></td>
-                            <td><f:if condition="{propSet.newSnapshot}"><f:then>True</f:then><f:else>False</f:else></f:if></td>
-                        </tr>
-                    </f:for>
-                </table>
-            </li>
-        </f:for>
-    </ul>-->
 </f:section>

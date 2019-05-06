@@ -74,6 +74,7 @@ trait PackageTrait
         $sites = [];
 
         foreach($sitePackages as $sitePackage) {
+
             $sites[] = array(
                 'packageKey' => $sitePackage->getSiteResourcesPackageKey(),
                 'baseUri' => $this->generateBaseUri($sitePackage->getPrimaryDomain())
@@ -89,6 +90,10 @@ trait PackageTrait
      * @return string
      */
     private function generateBaseUri($domain) {
+        if (!$domain) {
+            return '';
+        }
+
         $scheme = $domain->getScheme();
         $port = $domain->getPort();
 

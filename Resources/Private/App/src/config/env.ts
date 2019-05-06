@@ -7,7 +7,8 @@ export default el => {
         currentSitePackageKey,
         snapshotObjectsEndpoint,
         snapshotDataEndpoint,
-        sitePackagesEndpoint
+        sitePackagesEndpoint,
+        previewMarkupEndpoint
     }: Config.Env = el.dataset;
 
     return {
@@ -16,6 +17,7 @@ export default el => {
         currentSitePackageKey,
         snapshotObjectsEndpoint,
         snapshotDataEndpoint,
-        sitePackagesEndpoint
+        sitePackagesEndpoint,
+        previewMarkupEndpoint
     };
 };

@@ -17,6 +17,7 @@ use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Mvc\View\ViewInterface;
 use Neos\Flow\Mvc\Controller\ActionController;
 use Neos\Flow\Mvc\Controller\ControllerContext;
+use Neos\Fusion\View\FusionView as NeosFusionView;
 use SebastianBergmann\Diff\Differ;
 use Suffle\Snapshot\Traits\SimulateContextTrait;
 use Suffle\Snapshot\Traits\PackageTrait;
@@ -44,6 +45,12 @@ class ApiController extends ActionController {
      * @var ControllerContext
      */
     protected $controllerContext;
+
+    /**
+     * @Flow\InjectConfiguration()
+     * @var array
+     */
+    protected $settings;
 
     public function __construct()
     {
@@ -110,6 +117,34 @@ class ApiController extends ActionController {
                 'testSuccess' => $diff ? false : true
             ];
         }
+
+        $this->view->assign('value', $result);
+    }
+
+    /**
+     * Get preview markup
+     *
+     * @Flow\SkipCsrfProtection
+     * @param string $packageKey
+     * @return void
+     */
+    public function previewMarkupAction($packageKey = null)
+    {
+        $packageKey = $packageKey ?: $this->getFirstOnlineSitePackageKey();
+        $previewPrototypeName = $this->settings['previewPrototypeName'];
+        $prototypePreviewRenderPath = str_replace(['.', ':'], ['_', '__'], $previewPrototypeName);
+
+        $fusionView = new FusionView();
+
+        $fusionRootPath = sprintf('/<%s>', $prototypePreviewRenderPath);
+        $fusionView->setControllerContext($this->controllerContext);
+        $fusionView->setPackageKey($packageKey);
+
+        // get the status and headers from the view
+        $result = [
+            'previewMarkup' => $fusionView->renderPrototype($previewPrototypeName)
+        ];
+
 
         $this->view->assign('value', $result);
     }

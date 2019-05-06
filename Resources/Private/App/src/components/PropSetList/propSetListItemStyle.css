@@ -1,0 +1,17 @@
+.propSetListItem {
+    position: relative;
+}
+
+.successIndicator {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--colors-Success)
+}
+
+.successIndicator--fail {
+    background: var(--colors-Error)
+}
