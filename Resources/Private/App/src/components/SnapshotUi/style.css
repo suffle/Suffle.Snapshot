@@ -1,0 +1,14 @@
+.snapshotUi {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.header {
+    flex-shrink: 0;
+    flex-grow: 0;
+}
+
+.mainContent {
+    flex: 1;
+}

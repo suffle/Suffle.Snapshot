@@ -1,33 +1,25 @@
-{namespace monocle=Sitegeist\Monocle\ViewHelpers}
 <!doctype html>
 <html>
-	<head>
-	    <meta charset="UTF-8">
+    <head>
+        <meta charset="UTF-8">
         <link href="https://fonts.googleapis.com/css?family=Work+Sans" rel="stylesheet">
-        <link rel="stylesheet" href="{f:uri.resource(path: 'resource://Sitegeist.Monocle/Public/Styles/App.css')}" />
-	</head>
-	<body style="padding:0; background-color:#222;">
+        <link rel="stylesheet" href="{f:uri.resource(path: 'resource://Suffle.Snapshot/Public/css/main.css')}" />
+        <link rel="stylesheet" href="{f:uri.resource(path: 'resource://Suffle.Snapshot/Public/css/prism.css')}" />
+    </head>
+    <body style="padding:0; background-color:#222;">
         <div
-            id="app"
-            data-default-site-package-key="{defaultSitePackageKey}"
-
-            data-ui-settings="{uiSettings}"
-            data-preview-settings="{previewSettings}"
+            id="snapshotRoot"
 
             data-login-endpoint="{f:uri.action(action: 'authenticate', controller: 'Login', package: 'Neos.Neos', format: 'json')}"
 
-            data-module-uri="{f:uri.action(action:'index', controller:'module', package:'Sitegeist.Monocle')}"
-            data-fullscreen-uri="{f:uri.action(action:'index', controller:'module', package:'Sitegeist.Monocle')}"
+            data-overview-uri="{f:uri.action(action:'index', controller:'overview', package:'Suffle.Snapshot')}"
+            data-current-site-package-key="{currentSitePackageKey}"
 
-            data-iframe-uri="{f:uri.action(action:'index', controller:'preview', package:'Sitegeist.Monocle')}"
-            data-preview-uri="{f:uri.action(action:'index', controller:'preview', package:'Sitegeist.Monocle')}"
-
-            data-prototypes-endpoint="{f:uri.action(action:'styleguideObjects', controller:'api', package:'Sitegeist.Monocle')}"
-            data-viewport-presets-endpoint="{f:uri.action(action:'viewportPresets', controller:'api', package:'Sitegeist.Monocle')}"
-            data-locale-presets-endpoint="{f:uri.action(action:'localePresets', controller:'api', package:'Sitegeist.Monocle')}"
-            data-site-packages-endpoint="{f:uri.action(action:'sitePackages', controller:'api', package:'Sitegeist.Monocle')}"
-            data-render-prototypes-endpoint="{f:uri.action(action:'renderPrototype', controller:'api', package:'Sitegeist.Monocle')}"
+            data-snapshot-objects-endpoint="{f:uri.action(action:'snapshotObjects', controller:'api', package:'Suffle.Snapshot')}"
+            data-snapshot-data-endpoint="{f:uri.action(action:'snapshotData', controller:'api', package:'Suffle.Snapshot')}"
+            data-site-packages-endpoint="{f:uri.action(action:'sitePackages', controller:'api', package:'Suffle.Snapshot')}"
+            data-preview-markup-endpoint="{f:uri.action(action:'previewMarkup', controller:'api', package:'Suffle.Snapshot')}"
             ></div>
-        <script src="{f:uri.resource(path: 'resource://Sitegeist.Monocle/Public/JavaScript/App.js')}"></script>
-	</body>
+        <script src="{f:uri.resource(path: 'resource://Suffle.Snapshot/Public/js/main.js')}"></script>
+    </body>
 </html>

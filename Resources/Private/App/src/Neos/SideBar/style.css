@@ -1,0 +1,13 @@
+.sideBar {
+    composes: reset from './../reset.css';
+    position: absolute;
+    width: var(--size-SidebarWidth);
+    height: 100%;
+    background: var(--colors-ContrastDarker);
+}
+.sideBar--left {
+    left: 0;
+}
+.sideBar--right {
+    right: 0;
+}

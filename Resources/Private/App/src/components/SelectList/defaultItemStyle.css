@@ -1,0 +1,30 @@
+.defaultListItem {
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 14px;
+
+    /* subtract the size of padding */
+    line-height: calc(var(--spacing-GoldenUnit) - 10px);
+    padding: 5px var(--spacing-Full);
+    border-top: 1px solid #555;
+
+    &:first-child {
+        border-top: none;
+    }
+
+    &:hover,
+    &:focus {
+        outline: none;
+        background-color: var(--colors-PrimaryBlue);
+    }
+}
+
+.defaultListItemisSelected {
+    background: var(--colors-PrimaryBlue);
+    cursor: default;
+
+    &:hover,
+    &:focus {
+        background: var(--colors-PrimaryBlue);
+    }
+}

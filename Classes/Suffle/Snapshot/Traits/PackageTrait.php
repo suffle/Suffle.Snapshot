@@ -35,6 +35,15 @@ trait PackageTrait
     }
 
     /**
+     * @return string
+     */
+    protected function getFirstOnlineSitePackageKey() {
+        $sitePackage = $this->getFirstOnlineSitePackage();
+
+        return  $sitePackage['packageKey'];
+    }
+
+    /**
      * @param String $packageKey
      * @return array
      */
@@ -65,6 +74,7 @@ trait PackageTrait
         $sites = [];
 
         foreach($sitePackages as $sitePackage) {
+
             $sites[] = array(
                 'packageKey' => $sitePackage->getSiteResourcesPackageKey(),
                 'baseUri' => $this->generateBaseUri($sitePackage->getPrimaryDomain())
@@ -80,6 +90,10 @@ trait PackageTrait
      * @return string
      */
     private function generateBaseUri($domain) {
+        if (!$domain) {
+            return '';
+        }
+
         $scheme = $domain->getScheme();
         $port = $domain->getPort();
 

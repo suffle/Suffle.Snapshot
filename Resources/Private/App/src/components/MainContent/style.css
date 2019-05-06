@@ -1,0 +1,12 @@
+.mainContent {
+    display: flex;
+}
+.sideBar {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.compareView {
+    flex: 1;
+    min-width: 0;
+}

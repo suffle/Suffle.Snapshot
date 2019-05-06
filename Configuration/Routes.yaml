@@ -1,0 +1,31 @@
+-
+  name:  'Snapshot Overview'
+  uriPattern: 'snapshot/overview'
+  defaults:
+    '@package': 'Suffle.Snapshot'
+    '@subpackage': ''
+    '@action': 'index'
+    '@controller': 'Overview'
+    '@format': 'html'
+  httpMethods: ['GET','POST']
+
+-
+  name:  'Snapshot API'
+  uriPattern: 'snapshot/api/{@action}'
+  defaults:
+    '@package': 'Suffle.Snapshot'
+    '@subpackage': ''
+    '@controller': 'Api'
+    '@format': 'html'
+  httpMethods: ['GET','POST']
+
+-
+  name:  'Snapshot Preview'
+  uriPattern: 'snapshot/preview'
+  defaults:
+    '@package': 'Suffle.Snapshot'
+    '@subpackage': ''
+    '@action': 'index'
+    '@controller': 'Preview'
+    '@format': 'html'
+  httpMethods: ['GET','POST']

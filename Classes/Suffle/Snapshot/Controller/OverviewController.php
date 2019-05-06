@@ -17,26 +17,33 @@ use Suffle\Snapshot\Service\TestingService;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Mvc\View\ViewInterface;
 use Neos\Flow\Mvc\Controller\ActionController;
+use Suffle\Snapshot\Traits\PackageTrait;
 
-/**
- * Class ModuleController
- * @package Suffle\Monocle\Controller
- */
-class DiffController extends ActionController
+class OverviewController extends ActionController
 {
+
+    use PackageTrait;
+    /**
+     * @var array
+     */
+    protected $sitePackage;
+
+    /**
+     * @param  ViewInterface $view
+     * @return void
+     */
+    public function initializeView(ViewInterface $view)
+    {
+        if (!$this->sitePackage) {
+            $this->sitePackage = $this->getFirstOnlineSitePackage();
+        }
+
+        $this->view->assign('currentSitePackageKey', $this->sitePackage['packageKey']);
+    }
     /**
      * @return void
      */
-    public function indexAction(string $sitePackageKey, string $prototypeName)
+    public function indexAction()
     {
-        $testingService = new TestingService($sitePackageKey);
-        $testResults = $testingService->testPrototype($prototypeName, true);
-        $testResults = array_key_exists($prototypeName, $testResults['detailedResults']) ? $testResults['detailedResults'][$prototypeName] : null;
-
-
-        $this->view->assignMultiple([
-            'testResults' => $testResults,
-            'prototypeName' => $prototypeName
-        ]);
     }
 }
