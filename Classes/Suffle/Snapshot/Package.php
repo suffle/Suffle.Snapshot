@@ -70,7 +70,7 @@ class Package extends BasePackage
                 return;
             }
 
-            $templateCache = $bootstrap->getObjectManager()->get(CacheManager::class)->getCache('Suffle_Snapshot_Fusion_Files');
+            $templateCache = $bootstrap->getObjectManager()->get(CacheManager::class)->getCache('Suffle_Snapshot_Fusion_Cache');
             $templateCache->flush();
         };
         $dispatcher->connect(FileMonitor::class, 'filesHaveChanged', $flushTemplates);

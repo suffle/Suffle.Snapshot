@@ -199,9 +199,9 @@ final class DiffOutputBuilder implements DiffOutputBuilderInterface
 
         for ($i = $diffStartIndex; $i < $diffEndIndex; ++$i) {
             if ($diff[$i][1] === Differ::ADDED) {
-                \fwrite($output, '<fg=green>+' . $diff[$i][0] . "</>");
+                \fwrite($output, "<fg=green>" . $diff[$i][0] . "</>");
             } elseif ($diff[$i][1] === Differ::REMOVED) {
-                \fwrite($output, '<fg=red>-' . $diff[$i][0] . "</>");
+                \fwrite($output, "<fg=red>" . $diff[$i][0] . "</>");
             } elseif ($diff[$i][1] === Differ::OLD) {
                 \fwrite($output, ' ' . $diff[$i][0]);
             } elseif ($diff[$i][1] === Differ::NO_LINE_END_EOF_WARNING) {

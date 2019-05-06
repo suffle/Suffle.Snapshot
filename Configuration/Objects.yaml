@@ -2,3 +2,13 @@ Suffle\Snapshot\Fusion\FusionView:
   properties:
     fallbackView:
       object: Neos\FluidAdaptor\View\TemplateView
+
+Suffle\Snapshot\Aspects\FusionCachingAspect:
+  properties:
+    fusionCache:
+      object:
+        factoryObjectName: Neos\Flow\Cache\CacheManager
+        factoryMethodName: getCache
+        arguments:
+          1:
+            value: Suffle_Snapshot_Fusion_Cache
