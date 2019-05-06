@@ -56,7 +56,7 @@ const resolveModule = (resolveFn, filePath) => {
 module.exports = {
   appIndexJs: resolveModule(resolveApp, 'Resources/Private/App/src/index'),
   appPath: resolveApp('Resources/Private/JavaScript'),
-  appBuild: path.resolve('./Resources/Public/'),
+  appBuild: path.resolve('Resources/Public/'),
   appSrc: resolveApp('Resources/Private/App/src'),
   appPublic: resolveApp('Resources/Private/App/Public'),
   appHtml: resolveApp('Resources/Private/App/index.html'),
