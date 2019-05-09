@@ -1,7 +1,7 @@
 Suffle:
   Snapshot:
     snapshotSavePath: '%FLOW_PATH_DATA%Persistent/fusionSnapshots/'
-    annotationKey: 'styleguide'
+    annotationKey: 'snapshot'
     previewPrototypeName: 'Suffle.Snapshot:Preview.Page'
 
 Neos:

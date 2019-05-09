@@ -132,6 +132,10 @@ class FusionView extends BaseFusionView
 
     protected function postProcessFusionAstForPrototype(array $fusionAst, string $prototypeName): array
     {
+        if (!$prototypeName || $prototypeName === 'undefined') {
+            return [];
+        }
+
         $this->assertWellFormedSnapshotObject($fusionAst, $prototypeName);
         $annotationKey = $this->settings['annotationKey'] ?: 'snapshot';
 

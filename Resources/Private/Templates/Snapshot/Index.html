@@ -1,30 +1,6 @@
 <f:layout name="BackendSubModule" />
 
 <f:section name="content">
-    <h1>Test results for {activeSite}</h1>
-    <table>
-        <tr>
-            <td>Total tests</td>
-            <td>{testResults.totalTests}</td>
-        </tr>
-        <tr>
-            <td>New snapshots</td>
-            <td>{testResults.newSnapshots}</td>
-        </tr>
-        <tr>
-            <td>Successful tests</td>
-            <td>{testResults.totalTests - testResults.failedTests}</td>
-        </tr>
-        <tr>
-            <td>Failed tests</td>
-            <td>{testResults.failedTests}</td>
-        </tr>
-        <tr>
-            <td>Testing successful</td>
-            <td><span>{success}</span></td>
-        </tr>
-    </table>
-
     <div>
         <div class="button-container">
             <a class="neos-button" target="_blank" href="{f:uri.action(action:'index', controller:'overview', package:'Suffle.Snapshot', useParentRequest: 1)}">Open Test Results in new Window <i class="icon-external-link"></i></a>

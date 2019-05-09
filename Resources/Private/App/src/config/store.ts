@@ -14,12 +14,13 @@ export default (envData: Config.Env) => {
   const sagaMiddleware = createSagaMiddleware();
   const loggerMiddleware =
     process && process.env.NODE_ENV !== "production" ? logger : null;
+  const middleware = [sagaMiddleware, loggerMiddleware].filter(Boolean);
   const initialState = getInitialState(envData);
 
   const store = createStore(
     rootReducer,
     initialState,
-    composeEnhancers(applyMiddleware(sagaMiddleware, loggerMiddleware))
+    composeEnhancers(applyMiddleware(...middleware))
   );
 
   sagaMiddleware.run(rootSaga);

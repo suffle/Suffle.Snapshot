@@ -54,16 +54,6 @@ class SnapshotController extends AbstractModuleController
      */
     public function indexAction()
     {
-        $sitePackage = $this->sitePackage;
-        $sitePackageKey = $sitePackage['packageKey'];
-        $testingService = new TestingService($sitePackageKey, false, false);
-        $testResults = $testingService->testAllPrototypes();
-
-        $this->view->assignMultiple([
-            'activeSite' => $sitePackageKey,
-            'testResults' => $testResults,
-            'success' => $testResults['success'] ? 'True' : 'False'
-        ]);
 
     }
 }
