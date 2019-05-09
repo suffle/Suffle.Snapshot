@@ -1,4 +1,4 @@
-# Suffle.Snapshot (Still WIP)
+# Suffle.Snapshot
 
 A Flow package to perform snapshot tests of fusion components
 
