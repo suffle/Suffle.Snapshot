@@ -4,6 +4,8 @@
 .sideBar {
     position: relative;
     flex-shrink: 0;
+    max-height: 100%;
+    overflow-y: auto;
 }
 
 .compareView {

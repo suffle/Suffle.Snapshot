@@ -33,7 +33,7 @@ const PrototypeSelectViewContainer: SFC<PrototypeSelectViewContainerProps> = ({
 
   return <div className={style.prototypeSelectView}>
       <SearchBar className={style.prototypeSelectViewSearch} onChange={onSearchChange} onClearClick={onClearClick} />
-      <SelectList items={filteredPrototypes} selectedItem={selectedPrototype} onSelect={setPrototype} />
+      <SelectList className={style.prototypeSelectViewList} items={filteredPrototypes} selectedItem={selectedPrototype} onSelect={setPrototype} />
   </div>
 };
 
