@@ -14,16 +14,13 @@ namespace Suffle\Snapshot\Controller;
  */
 
 use Neos\Flow\Annotations as Flow;
-use Neos\Flow\Mvc\View\ViewInterface;
 use Neos\Flow\Mvc\Controller\ActionController;
 use Neos\Flow\Mvc\Controller\ControllerContext;
-use Neos\Fusion\View\FusionView as NeosFusionView;
 use SebastianBergmann\Diff\Differ;
 use Suffle\Snapshot\Traits\SimulateContextTrait;
 use Suffle\Snapshot\Traits\PackageTrait;
 use Suffle\Snapshot\Fusion\FusionService;
 use Suffle\Snapshot\Fusion\FusionView;
-use Suffle\Snapshot\Service\TestingService;
 use Suffle\Snapshot\Service\SnapshotService;
 use Suffle\Snapshot\Diff\DiffOutputBuilder;
 
@@ -51,11 +48,6 @@ class ApiController extends ActionController {
      * @var array
      */
     protected $settings;
-
-    public function __construct()
-    {
-        $this->controllerContext = $this->createDummyContext();
-    }
 
     /**
      * get all names of testable objects
@@ -90,7 +82,7 @@ class ApiController extends ActionController {
         $prototypePreviewRenderPath = FusionService::RENDERPATH_DISCRIMINATOR . str_replace(['.', ':'], ['_', '__'], $prototypeName);
 
         $fusionView = new FusionView();
-        $fusionView->setControllerContext($this->controllerContext);
+        $fusionView->setControllerContext($this->createDummyContext());
         $fusionView->setFusionPath($prototypePreviewRenderPath);
         $fusionView->setPackageKey($packageKey);
 

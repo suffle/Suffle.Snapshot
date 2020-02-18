@@ -12,12 +12,13 @@ namespace Suffle\Snapshot;
  * source code.
  */
 
+use Neos\Cache\Backend\BackendInterface;
 use Neos\Flow\Cache\CacheManager;
 use Neos\Flow\Core\Booting\Sequence;
 use Neos\Flow\Core\Bootstrap;
 use Neos\Flow\Monitor\FileMonitor;
 use Neos\Flow\Package\Package as BasePackage;
-use Neos\Flow\Package\PackageManagerInterface;
+use Neos\Flow\Package\PackageManager;
 
 /**
  * The Fluid Package
@@ -42,9 +43,9 @@ class Package extends BasePackage
                 if ($step->getIdentifier() === 'neos.flow:systemfilemonitor') {
                     $templateFileMonitor = FileMonitor::createFileMonitorAtBoot('Suffle_Snapshot_Fusion_Files', $bootstrap);
                     /**
-                     * @var PackageManagerInterface $packageManager
+                     * @var PackageManager $packageManager
                      */
-                    $packageManager = $bootstrap->getEarlyInstance(PackageManagerInterface::class);
+                    $packageManager = $bootstrap->getEarlyInstance(PackageManager::class);
 
                     foreach ($packageManager->getAvailablePackages() as $packageKey => $package) {
                         if (method_exists($package, 'getResourcesPath')) {
@@ -70,6 +71,7 @@ class Package extends BasePackage
                 return;
             }
 
+            /** @var BackendInterface $templateCache */
             $templateCache = $bootstrap->getObjectManager()->get(CacheManager::class)->getCache('Suffle_Snapshot_Fusion_Cache');
             $templateCache->flush();
         };
