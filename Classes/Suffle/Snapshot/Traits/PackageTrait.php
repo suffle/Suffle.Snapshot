@@ -13,6 +13,7 @@ namespace Suffle\Snapshot\Traits;
  * source code.
  */
 
+use Neos\Neos\Domain\Model\Site;
 use Neos\Neos\Domain\Repository\SiteRepository;
 
 /**
@@ -50,15 +51,15 @@ trait PackageTrait
     protected function getSitePackageByKey(String $packageKey) : array
     {
         $siteRepository = new SiteRepository();
-        $sitePackages = $siteRepository->findAll();
+        /** @var Site $site */
+        /** @noinspection PhpUndefinedMethodInspection */
+        $site = $siteRepository->findOneBySiteResourcesPackageKey($packageKey);
 
-        foreach($sitePackages as $sitePackage) {
-            if ($sitePackage->getSiteResourcesPackageKey() === $packageKey) {
-                return array(
-                    'packageKey' => $sitePackage->getSiteResourcesPackageKey(),
-                    'baseUri' => $this->generateBaseUri($sitePackage->getPrimaryDomain())
-                );
-            }
+        if ($site) {
+            return [
+                'packageKey' => $site->getSiteResourcesPackageKey(),
+                'baseUri' => $this->generateBaseUri($site->getPrimaryDomain())
+            ];
         }
 
         return [];
@@ -70,18 +71,19 @@ trait PackageTrait
     protected function getSitePackages(): array
     {
         $siteRepository = new SiteRepository();
-        $sitePackages = $siteRepository->findAll();
-        $sites = [];
+        $sitePackages = $siteRepository->findAll()->toArray();
 
-        foreach($sitePackages as $sitePackage) {
-
-            $sites[] = array(
-                'packageKey' => $sitePackage->getSiteResourcesPackageKey(),
-                'baseUri' => $this->generateBaseUri($sitePackage->getPrimaryDomain())
-            );
-        }
-
-        return $sites;
+        return array_reduce(
+            $sitePackages,
+            function (array $packages, Site $site) {
+                $packages[$site->getSiteResourcesPackageKey()] = [
+                    'packageKey' => $site->getSiteResourcesPackageKey(),
+                    'baseUri' => $this->generateBaseUri($site->getPrimaryDomain()),
+                ];
+                return $packages;
+            },
+            []
+        );
     }
 
 
