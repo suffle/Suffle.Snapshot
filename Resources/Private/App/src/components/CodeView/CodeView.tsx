@@ -22,7 +22,7 @@ const CodeView: SFC<CodeViewProps> = ({propSet, propSetName, prototypeName}) => 
     <ReactGhLikeDiff past={prettyOld} current={prettyNew} options={{
       originalFileName: prototypeName,
       updatedFileName: propSetName
-    }} />}
+    }} />
   </div>
 }
 
