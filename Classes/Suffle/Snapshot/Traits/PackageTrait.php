@@ -25,7 +25,8 @@ trait PackageTrait
     /**
      * @return array
      */
-    protected function getFirstOnlineSitePackage() {
+    protected function getFirstOnlineSitePackage()
+    {
         $siteRepository = new SiteRepository();
         $sitePackage = $siteRepository->findFirstOnline();
 
@@ -38,17 +39,18 @@ trait PackageTrait
     /**
      * @return string
      */
-    protected function getFirstOnlineSitePackageKey() {
+    protected function getFirstOnlineSitePackageKey()
+    {
         $sitePackage = $this->getFirstOnlineSitePackage();
 
-        return  $sitePackage['packageKey'];
+        return $sitePackage['packageKey'];
     }
 
     /**
      * @param String $packageKey
      * @return array
      */
-    protected function getSitePackageByKey(String $packageKey) : array
+    protected function getSitePackageByKey(String $packageKey): array
     {
         $siteRepository = new SiteRepository();
         /** @var Site $site */
@@ -91,7 +93,8 @@ trait PackageTrait
      * @param $domain \Neos\Neos\Domain\Model\Domain
      * @return string
      */
-    private function generateBaseUri($domain) {
+    private function generateBaseUri($domain)
+    {
         if (!$domain) {
             return '';
         }
@@ -100,7 +103,7 @@ trait PackageTrait
         $port = $domain->getPort();
 
         $baseUri = '';
-        $baseUri .= $scheme ? : 'http';
+        $baseUri .= $scheme ?: 'http';
         $baseUri .= '://';
         $baseUri .= $domain->getHostname();
 
