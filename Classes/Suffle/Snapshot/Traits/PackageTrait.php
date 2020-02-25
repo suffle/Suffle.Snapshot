@@ -13,6 +13,7 @@ namespace Suffle\Snapshot\Traits;
  * source code.
  */
 
+use Neos\Neos\Domain\Model\Site;
 use Neos\Neos\Domain\Repository\SiteRepository;
 
 /**
@@ -24,7 +25,8 @@ trait PackageTrait
     /**
      * @return array
      */
-    protected function getFirstOnlineSitePackage() {
+    protected function getFirstOnlineSitePackage()
+    {
         $siteRepository = new SiteRepository();
         $sitePackage = $siteRepository->findFirstOnline();
 
@@ -37,28 +39,29 @@ trait PackageTrait
     /**
      * @return string
      */
-    protected function getFirstOnlineSitePackageKey() {
+    protected function getFirstOnlineSitePackageKey()
+    {
         $sitePackage = $this->getFirstOnlineSitePackage();
 
-        return  $sitePackage['packageKey'];
+        return $sitePackage['packageKey'];
     }
 
     /**
      * @param String $packageKey
      * @return array
      */
-    protected function getSitePackageByKey(String $packageKey) : array
+    protected function getSitePackageByKey(String $packageKey): array
     {
         $siteRepository = new SiteRepository();
-        $sitePackages = $siteRepository->findAll();
+        /** @var Site $site */
+        /** @noinspection PhpUndefinedMethodInspection */
+        $site = $siteRepository->findOneBySiteResourcesPackageKey($packageKey);
 
-        foreach($sitePackages as $sitePackage) {
-            if ($sitePackage->getSiteResourcesPackageKey() === $packageKey) {
-                return array(
-                    'packageKey' => $sitePackage->getSiteResourcesPackageKey(),
-                    'baseUri' => $this->generateBaseUri($sitePackage->getPrimaryDomain())
-                );
-            }
+        if ($site) {
+            return [
+                'packageKey' => $site->getSiteResourcesPackageKey(),
+                'baseUri' => $this->generateBaseUri($site->getPrimaryDomain())
+            ];
         }
 
         return [];
@@ -70,18 +73,19 @@ trait PackageTrait
     protected function getSitePackages(): array
     {
         $siteRepository = new SiteRepository();
-        $sitePackages = $siteRepository->findAll();
-        $sites = [];
+        $sitePackages = $siteRepository->findAll()->toArray();
 
-        foreach($sitePackages as $sitePackage) {
-
-            $sites[] = array(
-                'packageKey' => $sitePackage->getSiteResourcesPackageKey(),
-                'baseUri' => $this->generateBaseUri($sitePackage->getPrimaryDomain())
-            );
-        }
-
-        return $sites;
+        return array_reduce(
+            $sitePackages,
+            function (array $packages, Site $site) {
+                $packages[$site->getSiteResourcesPackageKey()] = [
+                    'packageKey' => $site->getSiteResourcesPackageKey(),
+                    'baseUri' => $this->generateBaseUri($site->getPrimaryDomain()),
+                ];
+                return $packages;
+            },
+            []
+        );
     }
 
 
@@ -89,7 +93,8 @@ trait PackageTrait
      * @param $domain \Neos\Neos\Domain\Model\Domain
      * @return string
      */
-    private function generateBaseUri($domain) {
+    private function generateBaseUri($domain)
+    {
         if (!$domain) {
             return '';
         }
@@ -98,7 +103,7 @@ trait PackageTrait
         $port = $domain->getPort();
 
         $baseUri = '';
-        $baseUri .= $scheme ? : 'http';
+        $baseUri .= $scheme ?: 'http';
         $baseUri .= '://';
         $baseUri .= $domain->getHostname();
 
