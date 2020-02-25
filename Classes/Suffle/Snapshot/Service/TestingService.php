@@ -13,7 +13,6 @@ namespace Suffle\Snapshot\Service;
  * source code.
  */
 
-use Neos\Flow\Mvc\Controller\ControllerContext;
 use Suffle\Snapshot\Diff\DiffOutputBuilder;
 use Suffle\Snapshot\Fusion\FusionService;
 use Suffle\Snapshot\Fusion\FusionView;
@@ -98,11 +97,6 @@ class TestingService
     private $detailedTestResults;
 
     /**
-     * @var ControllerContext
-     */
-    private $controllerContext;
-
-    /**
      * Constructs the command controller
      * @param string $packageKey
      * @param bool $interactive
@@ -111,7 +105,6 @@ class TestingService
     public function __construct(string $packageKey = null, bool $interactive = false, bool $updateAll = false)
     {
         $this->sitePackages = $packageKey ? array($this->getSitePackageByKey($packageKey)) : null;
-        $this->controllerContext = $this->createDummyContext();
         $this->interactiveMode = $interactive;
         $this->updateAllSnapshots = $updateAll;
     }
@@ -190,7 +183,7 @@ class TestingService
         $prototypePreviewRenderPath = FusionService::RENDERPATH_DISCRIMINATOR . str_replace(['.', ':'], ['_', '__'], $prototypeName);
 
         $fusionView = new FusionView();
-        $fusionView->setControllerContext($this->controllerContext);
+        $fusionView->setControllerContext($this->createDummyContext());
         $fusionView->setFusionPath($prototypePreviewRenderPath);
         $fusionView->setPackageKey($sitePackageKey);
 
@@ -240,7 +233,7 @@ class TestingService
                 $this->outputTabbed($diff, [], 3);
                 $this->outputNewLine();
                 // give non-existing answer as default to force decision
-                $answer = $this->waitAndAsk("Update snapshot?", Self::UPDATE_SNAPSHOT_ANSWERS, "false", 2);
+                $answer = $this->waitAndAsk("Update snapshot?", self::UPDATE_SNAPSHOT_ANSWERS, "false", 2);
 
                 switch($answer) {
                     case "y":

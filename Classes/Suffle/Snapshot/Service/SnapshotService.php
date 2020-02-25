@@ -12,7 +12,6 @@ namespace Suffle\Snapshot\Service;
  * source code.
  */
 
-use Neos\Flow\Mvc\Controller\ControllerContext;
 use Suffle\Snapshot\Fusion\FusionService;
 use Suffle\Snapshot\Fusion\FusionView;
 use Suffle\Snapshot\Traits\SimulateContextTrait;
@@ -63,18 +62,12 @@ class SnapshotService
     private $sitePackages;
 
     /**
-     * @var ControllerContext
-     */
-    private $controllerContext;
-
-    /**
      * Constructs the command controller
      * @param string $packageKey
      */
     public function __construct(string $packageKey = null)
     {
         $this->sitePackages = $packageKey ? $this->getSitePackageByKey($packageKey) : null;
-        $this->controllerContext = $this->createDummyContext();
     }
 
     /**
@@ -205,7 +198,7 @@ class SnapshotService
 
         $fusionView = new FusionView();
 
-        $fusionView->setControllerContext($this->controllerContext);
+        $fusionView->setControllerContext($this->createDummyContext());
         $fusionView->setFusionPath($prototypePreviewRenderPath);
         $fusionView->setPackageKey($sitePackageKey);
 

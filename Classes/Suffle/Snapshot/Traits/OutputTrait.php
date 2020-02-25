@@ -40,7 +40,7 @@ trait OutputTrait
      */
     protected function outputInfoText(string $text, int $tabs = 0): void
     {
-        $text = "<fg=" . SELF::$INFO_COLOR . ">" . $text . "</>" . PHP_EOL;
+        $text = "<fg=" . self::$INFO_COLOR . ">" . $text . "</>" . PHP_EOL;
         $this->outputTabbed($text, [], $tabs);
     }
 
@@ -55,7 +55,7 @@ trait OutputTrait
      */
     protected function outputInfo(string $text, array $arguments = [], int $tabs = 0): void
     {
-        $this->outputPrefixed('INFO', SELF::$INFO_COLOR, $text, $arguments, $tabs);
+        $this->outputPrefixed('INFO', self::$INFO_COLOR, $text, $arguments, $tabs);
     }
 
     /**
@@ -69,7 +69,7 @@ trait OutputTrait
      */
     protected function outputSuccess(string $text, array $arguments = [], int $tabs = 0): void
     {
-        $this->outputPrefixed("SUCCESS", SELF::$SUCCESS_COLOR, $text, $arguments, $tabs);
+        $this->outputPrefixed("SUCCESS", self::$SUCCESS_COLOR, $text, $arguments, $tabs);
     }
 
     /**
@@ -83,7 +83,7 @@ trait OutputTrait
      */
     protected function outputFailed(string $text, array $arguments = [], int $tabs = 0): void
     {
-        $this->outputPrefixed('FAILED', SELF::$FAILED_COLOR, $text, $arguments, $tabs);
+        $this->outputPrefixed('FAILED', self::$FAILED_COLOR, $text, $arguments, $tabs);
     }
 
     /**

@@ -1,6 +1,6 @@
 # Suffle.Snapshot
 
-A Flow package to perform snapshot tests of fusion components
+A Neos CMS package to perform snapshot tests of fusion components
 
 ## Regression testing for fusion components
 
@@ -10,6 +10,12 @@ Inspired by Jest and its snapshot testing for React Components, this package hel
 1. Update the old snapshots
 
 Nevertheless, the developer needs to address the changed code somehow. The tests can also be run automatically as part of a CI-Build.
+
+## Installation
+
+Add the dependency to your project like this:
+
+    composer require --dev suffle/snapshot
 
 ## Example configuration
 

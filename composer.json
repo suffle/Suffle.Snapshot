@@ -10,8 +10,15 @@
             "role": "Developer"
         }
     ],
+    "keywords": [
+        "Neos CMS",
+        "Testing",
+        "Jest",
+        "Snapshot",
+        "Fusion"
+    ],
     "require": {
-        "neos/neos": "~4.2 || dev-master",
+        "neos/neos": "~4.2 || ~5.0 || dev-master",
         "sebastian/diff": "3.*"
     },
     "autoload": {
