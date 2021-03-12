@@ -84,7 +84,7 @@
     "prismjs": "^1.15.0",
     "react": "^16.7.0",
     "react-app-polyfill": "^0.2.0",
-    "react-dev-utils": "^7.0.1",
+    "react-dev-utils": "^11.0.4",
     "react-diff-viewer": "^1.0.4",
     "react-dom": "^16.7.0",
     "react-gh-like-diff": "^1.0.6-beta.1",
