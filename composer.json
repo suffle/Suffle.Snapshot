@@ -19,7 +19,7 @@
     ],
     "require": {
         "neos/neos": "~4.2 || ~5.0 || ~7.0 || dev-master",
-        "sebastian/diff": "3.*"
+        "sebastian/diff": "3.* || 4.*"
     },
     "autoload": {
         "psr-0": {
