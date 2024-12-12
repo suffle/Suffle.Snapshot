@@ -18,7 +18,7 @@
         "Fusion"
     ],
     "require": {
-        "neos/neos": "~4.2 || ~5.0 || ~7.0 || ~8.0 ||dev-master",
+        "neos/neos": "~8.3",
         "sebastian/diff": "3.* || 4.*"
     },
     "autoload": {
