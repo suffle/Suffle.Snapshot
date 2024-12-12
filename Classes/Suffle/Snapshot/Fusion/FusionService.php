@@ -43,19 +43,8 @@ class FusionService extends NeosFusionService
      */
     public function getMergedFusionObjectTreeForSitePackage(string $siteResourcesPackageKey): array
     {
-        $siteRootFusionPathAndFilename = sprintf($this->siteRootFusionPattern, $siteResourcesPackageKey);
-
-        $mergedFusionCode = '';
-        $mergedFusionCode .= $this->generateNodeTypeDefinitions();
-        $mergedFusionCode .= $this->getFusionIncludes($this->prepareAutoIncludeFusion());
-        $mergedFusionCode .= $this->getFusionIncludes($this->prependFusionIncludes);
-        $mergedFusionCode .= $this->readExternalFusionFile($siteRootFusionPathAndFilename);
-        $mergedFusionCode .= $this->getFusionIncludes($this->appendFusionIncludes);
-
-        $fusionAst = $this->fusionParser->parse($mergedFusionCode, $siteRootFusionPathAndFilename);
-        $finalFusionAst = $this->addSnapshotPrototypesToFusionAst($fusionAst);
-
-        return $finalFusionAst;
+        $site = $this->siteRepository->findDefault();
+        return $this->createFusionConfigurationFromSite($site)->toArray();
     }
 
     /**
