@@ -4,7 +4,7 @@ A Neos CMS package to perform snapshot tests of fusion components
 
 ## Regression testing for fusion components
 
-Inspired by Jest and its snapshot testing for React Components, this package helps reducing unwanted side-effects when changing existing Fusion Components. Especially in big projects it is often hard to keep an eye on  every usage of a component and which other component might be influenced. Snapshot testing reduces regression bugs by rendering Fusion Components and saving their outcome. If the code of a Fusion Component is changed, the snapshots are no longer in sync with the new outcome, which gives the developer two possibilities:
+Inspired by Jest and its snapshot testing for React Components, this package helps to reduce unwanted side effects when changing existing Fusion Components. Especially in big projects it is often hard to keep an eye on  every usage of a component and which other component might be influenced. Snapshot testing reduces regression bugs by rendering Fusion Components and saving their outcome. If the code of a Fusion Component is changed, the snapshots are no longer in sync with the new outcome, which gives the developer two possibilities:
 
 1. Adjust the code to keep old behaviour where needed
 1. Update the old snapshots
@@ -121,7 +121,7 @@ If you want to restrict the snapshots taken to a specific component, you can use
 
 ## Testing components
 
-Like with taking new snapshots, it is also possible to test all or only specific components. If you test new components or propSets whithout any snapshots available, the snapshots will be written on the first run.
+Like with taking new snapshots, it is also possible to test all or only specific components. If you test new components or propSets without any snapshots available, the snapshots will be written on the first run.
 
 ### Test all components
 
@@ -136,7 +136,7 @@ As a standard test mechanism this tests all components from all site packages pr
 Sometimes it is useful to test only single components, e.g. while developing:
 
 ```bash
-./flow snapshot:take Vendor.Package:Components.Example
+./flow snapshot:test Vendor.Package:Components.Example
 ```
 
 ### Using interactive mode
