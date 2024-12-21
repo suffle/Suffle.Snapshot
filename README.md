@@ -26,15 +26,22 @@ Suffle:
   Snapshot:
     snapshotSavePath: '%FLOW_PATH_DATA%Persistent/fusionSnapshots/'
     annotationKey: 'snapshot'
+    exclude:
+      packageKeys: []
 ````
 
 ### snapshotSavePath
 
 The snapshotSavePath defines the directory, where the snapshots are saved. If you use any Version Control Software like Git, make sure not to ignore this folder.
 
-## annotationKey
+### annotationKey
 
 The annotationKey can be set, if you want to use another name to annotate test cases. Since the syntax of the cases is the same used for the [Monocle Styleguide](https://github.com/sitegeist/Sitegeist.Monocle), you can use the styleguide annotation for the testing as well.
+
+### exclude.packageKeys
+
+You can exclude certain packages from the snapshot testing. 
+This is useful if you have packages that are not relevant for the snapshot testing.
 
 ## Annotating Test Cases
 

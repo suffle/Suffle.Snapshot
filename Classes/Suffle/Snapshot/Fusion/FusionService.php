@@ -28,11 +28,8 @@ class FusionService extends NeosFusionService
      */
     protected $autoIncludeConfiguration = array();
 
-    /**
-     * @Flow\InjectConfiguration()
-     * @var array
-     */
-    protected $settings;
+    #[Flow\InjectConfiguration]
+    protected ?array $settings;
 
     /**
      * Returns a merged fusion object tree in the context of the given site-package
@@ -143,26 +140,22 @@ class FusionService extends NeosFusionService
 
     /**
      * Add snapshot rendering configuration to the fusion-ast
-     *
-     * @param array $fusionAst
-     * @return array
      */
     protected function filterSnapshotPrototypes(array $fusionAst): array
     {
-        $snapshotPrototypeConfigurations = [];
         $prototypesList = [];
         $annotationKey = $this->settings['annotationKey'] ?: 'snapshot';
+        $excludedPackageKeys = $this->settings['exclude']['packageKeys'] ?? [];
 
         foreach ($fusionAst['__prototypes'] as $prototypeName => $prototypeConfiguration) {
+            $prototypePackageKey = explode(':', $prototypeName)[0];
             if (array_key_exists('__meta', $prototypeConfiguration)
                 && array_key_exists($annotationKey, $prototypeConfiguration['__meta'])
+                && !in_array($prototypePackageKey, $excludedPackageKeys, true)
             ) {
-                $snapshotPrototypeConfigurations[$prototypeName] = $prototypeConfiguration;
-                array_push($prototypesList, $prototypeName);
+                $prototypesList[] = $prototypeName;
             }
         }
-
-
         return $prototypesList;
     }
 }
