@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Suffle\Snapshot\Command;
 
 /**
@@ -13,13 +15,12 @@ namespace Suffle\Snapshot\Command;
  * source code.
  */
 
-use Suffle\Snapshot\Fusion\FusionService;
-use Suffle\Snapshot\Service\TestingService;
-use Suffle\Snapshot\Service\SnapshotService;
-use Suffle\Snapshot\Traits\PackageTrait;
-
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Cli\CommandController;
+use Suffle\Snapshot\Fusion\FusionService;
+use Suffle\Snapshot\Service\SnapshotService;
+use Suffle\Snapshot\Service\TestingService;
+use Suffle\Snapshot\Traits\PackageTrait;
 
 /**
  * Class SnapshotCommandController
@@ -29,18 +30,14 @@ class SnapshotCommandController extends CommandController
 {
     use PackageTrait;
 
-    /**
-     * @Flow\Inject
-     * @var FusionService
-     */
-    protected $fusionService;
-
+    #[Flow\Inject]
+    protected FusionService $fusionService;
 
     /**
      * Take Snapshot of given Fusion Component
      *
      * @param string $prototypeName to take snapshot of
-     * @param string $packageKey site-package (defaults to first found)
+     * @param string|null $packageKey site-package (defaults to first found)
      * @throws \Exception
      */
     public function takeCommand(string $prototypeName, string $packageKey = null): void
@@ -54,7 +51,7 @@ class SnapshotCommandController extends CommandController
     /**
      * Take Snapshots of all Fusion Components
      *
-     * @param string $packageKey site-package (defaults to first found)
+     * @param string|null $packageKey site-package (defaults to first found)
      * @throws \Exception
      */
     public function takeAllCommand(string $packageKey = null): void
@@ -69,15 +66,15 @@ class SnapshotCommandController extends CommandController
     /**
      * Test given Fusion Component
      *
-     * @param string §prototypeName name of prototype to be tested
+     * @param string $prototypeName name of prototype to be tested
      * @param bool $interactive use interactive mode
-     * @param bool $updateall update all failed snapshots
-     * @param string $packageKey site-package (defaults to first found)
+     * @param bool $updateAll update all failed snapshots
+     * @param string|null $packageKey site-package (defaults to first found)
      * @throws \Exception
      */
-    public function testCommand(string $prototypeName, bool $interactive = false, bool $updateall = false, string $packageKey = null): void
+    public function testCommand(string $prototypeName, bool $interactive = false, bool $updateAll = false, string $packageKey = null): void
     {
-        $testingService = new TestingService($packageKey, $interactive, $updateall);
+        $testingService = new TestingService($packageKey, $interactive, $updateAll);
         $testStats = $testingService->testPrototype($prototypeName);
 
         $this->outputTestResults($testStats);
@@ -87,13 +84,13 @@ class SnapshotCommandController extends CommandController
      * Test all Fusion Components
      *
      * @param bool $interactive use interactive mode
-     * @param bool $updateall update all failed snapshots
-     * @param string $packageKey site-package (defaults to first found)
+     * @param bool $updateAll update all failed snapshots
+     * @param string|null $packageKey site-package (defaults to first found)
      * @throws \Exception
      */
-    public function testAllCommand(bool $interactive = false, bool $updateall = false, $packageKey = null): void
+    public function testAllCommand(bool $interactive = false, bool $updateAll = false, string $packageKey = null): void
     {
-        $testingService = new TestingService($packageKey, $interactive, $updateall);
+        $testingService = new TestingService($packageKey, $interactive, $updateAll);
         $testStats = $testingService->testAllPrototypes();
 
         $this->outputTestResults($testStats);
@@ -103,7 +100,7 @@ class SnapshotCommandController extends CommandController
     /**
      * Get all items currently available for testing
      *
-     * @param string $packageKey site-package (defaults to first found)
+     * @param string|null $packageKey site-package (defaults to first found)
      * @throws \Exception
      */
     public function itemsCommand(string $packageKey = null): void
@@ -124,9 +121,6 @@ class SnapshotCommandController extends CommandController
 
     /**
      * Output results returned from snapshot service
-     *
-     * @param array $stats
-     * @throws \Exception
      */
     private function outputSnapshotResults(array $stats): void
     {
@@ -143,7 +137,7 @@ class SnapshotCommandController extends CommandController
         }
 
         if (!$stats['success']) {
-            throw new \Exception('Not all Snapshots could be written');
+            throw new \RuntimeException('Not all Snapshots could be written');
         }
 
         $this->output(PHP_EOL . "<fg=green>All Snapshots saved successfully</>");
@@ -151,9 +145,6 @@ class SnapshotCommandController extends CommandController
 
     /**
      * Output results returned from TestService
-     *
-     * @param array $stats
-     * @throws \Exception
      */
     private function outputTestResults(array $stats): void
     {
@@ -176,12 +167,12 @@ class SnapshotCommandController extends CommandController
         if($stats['failedPrototypes']) {
             foreach ($stats['failedPrototypes'] as $key => $propSets) {
                 $propsetString = count($propSets) > 1 ? 'propsets' : 'propset';
-                $this->output("\t<fg=yellow>" . $key . " with " . $propsetString . ": " . join(', ', $propSets) . "</>" . PHP_EOL);
+                $this->output("\t<fg=yellow>" . $key . " with " . $propsetString . ": " . implode(', ', $propSets) . "</>" . PHP_EOL);
             }
         }
 
         if (!$stats['success']) {
-            throw new \Exception('Snapshot Testing failed');
+            throw new \RuntimeException('Snapshot Testing failed');
         }
 
         $this->output(PHP_EOL . "<fg=green>Snapshot testing successful</>");

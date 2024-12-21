@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Suffle\Snapshot\Fusion;
 
 /**
@@ -15,32 +17,20 @@ namespace Suffle\Snapshot\Fusion;
 
 use DomainException;
 use Neos\Flow\Annotations as Flow;
-use \Neos\Neos\Domain\Service\FusionService as NeosFusionService;
-
+use Neos\Neos\Domain\Service\FusionService as NeosFusionService;
 
 class FusionService extends NeosFusionService
 {
-    const RENDERPATH_DISCRIMINATOR = 'snapshotPrototypeRenderer_';
+    public const RENDERPATH_DISCRIMINATOR = 'snapshotPrototypeRenderer_';
 
-    /**
-     * @Flow\InjectConfiguration(path="fusion.autoInclude", package="Neos.Neos")
-     * @var array
-     */
-    protected $autoIncludeConfiguration = array();
-
-    /**
-     * @Flow\InjectConfiguration()
-     * @var array
-     */
-    protected $settings;
+    #[Flow\InjectConfiguration]
+    protected ?array $settings;
 
     /**
      * Returns a merged fusion object tree in the context of the given site-package
      *
-     * @param string $siteResourcesPackageKey
      * @return array The merged object tree as of the given node
-     * @throws \Neos\Fusion\Exception
-     * @throws \Neos\Neos\Domain\Exception
+     * @throws DomainException
      */
     public function getMergedFusionObjectTreeForSitePackage(string $siteResourcesPackageKey): array
     {
@@ -54,15 +44,11 @@ class FusionService extends NeosFusionService
 
     /**
      * Add snapshot rendering configuration to the fusion-ast
-     *
-     * @param array $fusionAst
-     * @return array
      */
     protected function addSnapshotPrototypesToFusionAst(array $fusionAst): array
     {
         $snapshotPrototypeConfigurations = [];
         $snapshotRenderingPrototypes = [];
-        $snapshotRenderingProps = [];
 
         $annotationKey = $this->settings['annotationKey'] ?: 'snapshot';
 
@@ -81,10 +67,6 @@ class FusionService extends NeosFusionService
                 '__value' => null,
                 '__eelExpression' => null
             ];
-            if (array_key_exists('props', $prototypeConfiguration['__meta'][$annotationKey])
-                && is_array($prototypeConfiguration['__meta'][$annotationKey]['props'])) {
-                $snapshotRenderingProps[$prototypeName] = $prototypeConfiguration['__meta'][$annotationKey]['props'];
-            }
             $snapshotRenderingPrototypes[$prototypeName] = $renderPrototypeFusion;
         }
 
@@ -99,9 +81,6 @@ class FusionService extends NeosFusionService
 
     /**
      * Get all snapshot objects for the given fusion-ast
-     *
-     * @param array $fusionAst
-     * @return array
      */
     public function getSnapshotObjectsFromFusionAst(array $fusionAst): array
     {
@@ -113,13 +92,14 @@ class FusionService extends NeosFusionService
                 if (array_key_exists('__meta', $prototypeObject)
                     && is_array($prototypeObject['__meta'])
                     && array_key_exists($annotationKey, $prototypeObject['__meta'])) {
-                    list($prototypeVendor, $prototypeName) = explode(':', $prototypeFullName, 2);
+                    [, $prototypeName] = explode(':', $prototypeFullName, 2);
                     $snapshotConfiguration = $prototypeObject['__meta'][$annotationKey];
                     $snapshotObjects[$prototypeFullName] = [
-                        'title' => (isset($snapshotConfiguration['title'])) ? $snapshotConfiguration['title'] : implode(' ', array_reverse(explode('.', $prototypeName))),
-                        'path' => (isset($snapshotConfiguration['path'])) ? $snapshotConfiguration['path'] : $prototypeName,
-                        'description' => (isset($snapshotConfiguration['description'])) ? $snapshotConfiguration['description'] : '',
-                        'options' => (isset($snapshotConfiguration['options'])) ? $snapshotConfiguration['options'] : null,
+                        'title' => $snapshotConfiguration['title'] ?? implode(' ',
+                                array_reverse(explode('.', $prototypeName))),
+                        'path' => $snapshotConfiguration['path'] ?? $prototypeName,
+                        'description' => $snapshotConfiguration['description'] ?? '',
+                        'options' => $snapshotConfiguration['options'] ?? null,
                     ];
                 }
             }
@@ -130,10 +110,7 @@ class FusionService extends NeosFusionService
     /**
      * Returns a list of testable prototypes
      *
-     * @param string $siteResourcesPackageKey
      * @return array Array of prototype names to test
-     * @throws \Neos\Fusion\Exception
-     * @throws \Neos\Neos\Domain\Exception
      */
     public function getPrototypeNamesForTesting(string $siteResourcesPackageKey): array
     {
@@ -143,26 +120,22 @@ class FusionService extends NeosFusionService
 
     /**
      * Add snapshot rendering configuration to the fusion-ast
-     *
-     * @param array $fusionAst
-     * @return array
      */
     protected function filterSnapshotPrototypes(array $fusionAst): array
     {
-        $snapshotPrototypeConfigurations = [];
         $prototypesList = [];
         $annotationKey = $this->settings['annotationKey'] ?: 'snapshot';
+        $excludedPackageKeys = $this->settings['exclude']['packageKeys'] ?? [];
 
         foreach ($fusionAst['__prototypes'] as $prototypeName => $prototypeConfiguration) {
+            $prototypePackageKey = explode(':', $prototypeName)[0];
             if (array_key_exists('__meta', $prototypeConfiguration)
                 && array_key_exists($annotationKey, $prototypeConfiguration['__meta'])
+                && !in_array($prototypePackageKey, $excludedPackageKeys, true)
             ) {
-                $snapshotPrototypeConfigurations[$prototypeName] = $prototypeConfiguration;
-                array_push($prototypesList, $prototypeName);
+                $prototypesList[] = $prototypeName;
             }
         }
-
-
         return $prototypesList;
     }
 }

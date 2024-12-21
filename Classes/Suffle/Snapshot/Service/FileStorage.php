@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Suffle\Snapshot\Service;
 
 /**
@@ -13,12 +15,10 @@ namespace Suffle\Snapshot\Service;
  * source code.
  */
 
-use Suffle\Snapshot\Traits\OutputTrait;
-
 use Neos\Flow\Annotations as Flow;
 use Neos\Utility\Exception\FilesException;
 use Neos\Utility\Files;
-
+use Suffle\Snapshot\Traits\OutputTrait;
 
 /**
  * Service to store and read files
@@ -26,14 +26,11 @@ use Neos\Utility\Files;
 class FileStorage
 {
     use OutputTrait;
-    const MAX_FILENAME_LENGTH = 255;
 
-    /**
-     * @Flow\InjectConfiguration()
-     * @var array
-     */
-    protected $settings;
+    public const MAX_FILENAME_LENGTH = 255;
 
+    #[Flow\InjectConfiguration]
+    protected ?array $settings;
 
     /**
      * Stores snapshots of given prototype and propSet.
@@ -42,21 +39,19 @@ class FileStorage
      * @param string $prototypeName The name of the prototype that should be saved
      * @param string $propSetName rendered prototypes from propSets
      * @param string $sitePackageName Name of sitePackage to take snapshot from
-     * @return bool
      * @throws FilesException
      */
-    public function saveSnapshotByPropSet(string $html, string $prototypeName, string $propSetName, string $sitePackageName): bool
-    {
+    public function saveSnapshotByPropSet(
+        string $html,
+        string $prototypeName,
+        string $propSetName,
+        string $sitePackageName
+    ): bool {
         return $this->createSnapshotFile($html, $prototypeName, $propSetName, $sitePackageName);
     }
 
     /**
      * Get saved snapshot of given prototype and its propSetName.
-     *
-     * @param string $prototypeName
-     * @param string $propSetName
-     * @param string $sitePackageName
-     * @return string
      * @throws FilesException
      */
     public function getSnapshotByPropSet(string $prototypeName, string $propSetName, string $sitePackageName): string
@@ -65,16 +60,14 @@ class FileStorage
     }
 
     /**
-     * @param string $html
-     * @param string $prototypeName
-     * @param string $propSetName
-     * @param string $sitePackageName
-     * @return bool
      * @throws FilesException
      */
-
-    private function createSnapshotFile(string $html, string $prototypeName, string $propSetName, string $sitePackageName): bool
-    {
+    private function createSnapshotFile(
+        string $html,
+        string $prototypeName,
+        string $propSetName,
+        string $sitePackageName
+    ): bool {
         $filePath = $this->getSavePathForSnapshot([$sitePackageName, $prototypeName, $propSetName]);
         file_put_contents($filePath, $html);
         if (!file_exists($filePath)) {
@@ -92,8 +85,11 @@ class FileStorage
      * @return string
      * @throws FilesException
      */
-    private function loadSnapshotByPropSetName(string $prototypeName, string $propSetName, string $sitePackageName): string
-    {
+    private function loadSnapshotByPropSetName(
+        string $prototypeName,
+        string $propSetName,
+        string $sitePackageName
+    ): string {
         $filePath = $this->getSavePathForSnapshot([$sitePackageName, $prototypeName, $propSetName]);
 
         if (file_exists($filePath)) {
@@ -105,20 +101,16 @@ class FileStorage
 
     /**
      * Generate file name and folder
-     *
-     * @param array $fileNameComponents
-     * @return string
      * @throws FilesException
      */
     private function getSavePathForSnapshot(array $fileNameComponents): string
     {
-        $fileName = array_reduce($fileNameComponents, function ($acc, $item) {
+        $fileName = array_reduce($fileNameComponents, static function ($acc, $item) {
             if ($acc) {
                 $acc .= "_";
             }
 
             $acc .= str_replace(['.', ':', ' ', '-'], '_', $item);
-
             return $acc;
         });
 
@@ -129,27 +121,25 @@ class FileStorage
 
         if (strlen($fileName) > self::MAX_FILENAME_LENGTH) {
             $shortenedFilename = $this->truncateString($fileName, self::MAX_FILENAME_LENGTH - strlen($directoryPath));
-            $savePath = Files::concatenatePaths([$this->settings['snapshotSavePath'], $directoryPath, $shortenedFilename . '.snap']);
+            $savePath = Files::concatenatePaths([
+                $this->settings['snapshotSavePath'],
+                $directoryPath,
+                $shortenedFilename . '.snap'
+            ]);
         }
 
         Files::createDirectoryRecursively(dirname($savePath));
-
         return $savePath;
     }
 
     /**
      * Truncate an identifier if needed and append a hash to ensure uniqueness.
-     *
-     * @param string $string
-     * @param integer $lengthLimit
-     * @return string
      */
     private function truncateString(string $string, int $lengthLimit): string
     {
         if (strlen($string) > $lengthLimit) {
             $string = substr($string, 0, $lengthLimit - 6) . '_' . substr(sha1($string), 0, 5);
         }
-
         return $string;
     }
 }

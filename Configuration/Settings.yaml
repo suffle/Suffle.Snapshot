@@ -3,6 +3,8 @@ Suffle:
     snapshotSavePath: '%FLOW_PATH_DATA%Persistent/fusionSnapshots/'
     annotationKey: 'snapshot'
     previewPrototypeName: 'Suffle.Snapshot:Preview.Page'
+    exclude:
+      packageKeys: []
 
 Neos:
   Flow:

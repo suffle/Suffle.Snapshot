@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Suffle\Snapshot\Controller;
 
 /**
@@ -15,48 +18,31 @@ namespace Suffle\Snapshot\Controller;
 
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Mvc\Controller\ActionController;
-use Neos\Flow\Mvc\Controller\ControllerContext;
+use Neos\Flow\Mvc\Exception;
+use Neos\Flow\Mvc\View\JsonView;
+use Neos\Utility\Exception\FilesException;
 use SebastianBergmann\Diff\Differ;
-use Suffle\Snapshot\Traits\SimulateContextTrait;
-use Suffle\Snapshot\Traits\PackageTrait;
+use Suffle\Snapshot\Diff\DiffOutputBuilder;
 use Suffle\Snapshot\Fusion\FusionService;
 use Suffle\Snapshot\Fusion\FusionView;
 use Suffle\Snapshot\Service\SnapshotService;
-use Suffle\Snapshot\Diff\DiffOutputBuilder;
+use Suffle\Snapshot\Traits\PackageTrait;
+use Suffle\Snapshot\Traits\SimulateContextTrait;
 
-class ApiController extends ActionController {
+class ApiController extends ActionController
+{
     use PackageTrait, SimulateContextTrait;
 
-    /**
-     * @var array
-     */
-    protected $defaultViewObjectName = 'Neos\Flow\Mvc\View\JsonView';
+    protected $defaultViewObjectName = JsonView::class;
 
-    /**
-     * @Flow\Inject
-     * @var FusionService
-     */
-    protected $fusionService;
-
-    /**
-     * @var ControllerContext
-     */
-    protected $controllerContext;
-
-    /**
-     * @Flow\InjectConfiguration()
-     * @var array
-     */
-    protected $settings;
+    #[Flow\Inject]
+    protected FusionService $fusionService;
 
     /**
      * get all names of testable objects
-     *
-     * @Flow\SkipCsrfProtection
-     * @param string $packageKey
-     * @return void
      */
-    public function snapshotObjectsAction($packageKey = null)
+    #[Flow\SkipCsrfProtection]
+    public function snapshotObjectsAction(string $packageKey = null): void
     {
         $packageKey = $packageKey ?: $this->getFirstOnlineSitePackageKey();
 
@@ -70,16 +56,13 @@ class ApiController extends ActionController {
 
     /**
      * Get data for single prototype
-     *
-     * @Flow\SkipCsrfProtection
-     * @param string $prototypeName
-     * @param string $packageKey
-     * @return void
      */
-    public function snapshotDataAction($prototypeName, $packageKey = null)
+    #[Flow\SkipCsrfProtection]
+    public function snapshotDataAction(string $prototypeName, string $packageKey = null): void
     {
         $packageKey = $packageKey ?: $this->getFirstOnlineSitePackageKey();
-        $prototypePreviewRenderPath = FusionService::RENDERPATH_DISCRIMINATOR . str_replace(['.', ':'], ['_', '__'], $prototypeName);
+        $prototypePreviewRenderPath = FusionService::RENDERPATH_DISCRIMINATOR . str_replace(['.', ':'], ['_', '__'],
+                $prototypeName);
 
         $fusionView = new FusionView();
         $fusionView->setControllerContext($this->createDummyContext());
@@ -93,10 +76,20 @@ class ApiController extends ActionController {
         $builder = new DiffOutputBuilder();
         $differ = new Differ($builder);
 
-        $renderedPrototypes = $fusionView->renderSnapshotPrototype($prototypeName);
+        try {
+            $renderedPrototypes = $fusionView->renderSnapshotPrototype($prototypeName);
+        } catch (\Throwable $e) {
+            $this->logger->error($e->getMessage());
+            $renderedPrototypes = [];
+        }
 
         foreach ($renderedPrototypes as $propSetName => $renderedPrototype) {
-            $savedSnapshot = $snapshotService->getSnapshotOfPropSet($prototypeName, $propSetName, $packageKey);
+            try {
+                $savedSnapshot = $snapshotService->getSnapshotOfPropSet($prototypeName, $propSetName, $packageKey);
+            } catch (FilesException $e) {
+                $this->logger->error($e->getMessage());
+                $savedSnapshot = null;
+            }
 
             if ($savedSnapshot) {
                 $diff = $differ->diff($savedSnapshot, $renderedPrototype);
@@ -105,8 +98,8 @@ class ApiController extends ActionController {
             $result[$propSetName] = [
                 'snapshot' => $savedSnapshot,
                 'current' => $renderedPrototype,
-                'hasSnapshot' => $savedSnapshot ? true : false,
-                'testSuccess' => $diff ? false : true
+                'hasSnapshot' => (bool)$savedSnapshot,
+                'testSuccess' => $savedSnapshot && !$diff,
             ];
         }
 
@@ -115,39 +108,33 @@ class ApiController extends ActionController {
 
     /**
      * Get preview markup
-     *
-     * @Flow\SkipCsrfProtection
-     * @param string $packageKey
-     * @return void
      */
-    public function previewMarkupAction($packageKey = null)
+    #[Flow\SkipCsrfProtection]
+    public function previewMarkupAction(string $packageKey = null): void
     {
         $packageKey = $packageKey ?: $this->getFirstOnlineSitePackageKey();
         $previewPrototypeName = $this->settings['previewPrototypeName'];
-        $prototypePreviewRenderPath = str_replace(['.', ':'], ['_', '__'], $previewPrototypeName);
 
         $fusionView = new FusionView();
-
-        $fusionRootPath = sprintf('/<%s>', $prototypePreviewRenderPath);
         $fusionView->setControllerContext($this->controllerContext);
         $fusionView->setPackageKey($packageKey);
 
         // get the status and headers from the view
-        $result = [
-            'previewMarkup' => $fusionView->renderPrototype($previewPrototypeName)
-        ];
-
-
+        try {
+            $result = [
+                'previewMarkup' => $fusionView->renderPrototype($previewPrototypeName)
+            ];
+        } catch (\Throwable $e) {
+          $result = 'Error: ' . $e->getMessage();
+        }
         $this->view->assign('value', $result);
     }
 
     /**
      * Get all site packages
-     *
-     * @Flow\SkipCsrfProtection
-     * @return void
      */
-    public function sitePackagesAction()
+    #[Flow\SkipCsrfProtection]
+    public function sitePackagesAction(): void
     {
         $sitePackages = $this->getSitePackages();
         $result = [];

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace Suffle\Snapshot\Aspects;
 
 /**
@@ -13,28 +15,23 @@ namespace Suffle\Snapshot\Aspects;
  *
  */
 
+use Neos\Cache\Exception;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Aop\JoinPointInterface;
 use Neos\Cache\Frontend\VariableFrontend;
 
-/**
- * @Flow\Scope("singleton")
- * @Flow\Aspect
- */
+#[Flow\Scope('singleton')]
+#[Flow\Aspect]
 class FusionCachingAspect
 {
     /**
-     * @Flow\Inject
      * @var VariableFrontend
      */
+    #[Flow\Inject]
     protected $fusionCache;
 
-    /**
-     * @Flow\Around("method(Suffle\Snapshot\Fusion\FusionService->getMergedFusionObjectTreeForSitePackage())")
-     * @param JoinPointInterface $joinPoint The current join point
-     * @return mixed
-     */
-    public function cacheGetMergedFusionObjectTree(JoinPointInterface $joinPoint)
+    #[Flow\Around('method(Suffle\Snapshot\Fusion\FusionService->getMergedFusionObjectTreeForSitePackage())')]
+    public function cacheGetMergedFusionObjectTree(JoinPointInterface $joinPoint): mixed
     {
         $siteResourcesPackageKey = $joinPoint->getMethodArgument('siteResourcesPackageKey');
         $cacheIdentifier = str_replace('.', '_', $siteResourcesPackageKey);
@@ -43,7 +40,11 @@ class FusionCachingAspect
             $fusionObjectTree = $this->fusionCache->get($cacheIdentifier);
         } else {
             $fusionObjectTree = $joinPoint->getAdviceChain()->proceed($joinPoint);
-            $this->fusionCache->set($cacheIdentifier, $fusionObjectTree);
+            try {
+                $this->fusionCache->set($cacheIdentifier, $fusionObjectTree);
+            } catch (Exception) {
+                // Cache could not be written
+            }
         }
 
         return $fusionObjectTree;

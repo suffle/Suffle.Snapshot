@@ -1,19 +1,15 @@
 <?php
+
+declare(strict_types=1);
 namespace Suffle\Snapshot\Resource\Target;
 
 use Neos\Flow\ResourceManagement\Target\FileSystemTarget;
 
 class OverridableFileSystemTarget extends FileSystemTarget {
 
-    /**
-     * @var string
-     */
-    protected $customBaseUri;
+    protected ?string $customBaseUri = null;
 
-    /**
-     * @return string
-     */
-    protected function getResourcesBaseUri()
+    protected function getResourcesBaseUri(): string
     {
         if ($this->customBaseUri === null) {
             return parent::getResourcesBaseUri();
@@ -22,10 +18,7 @@ class OverridableFileSystemTarget extends FileSystemTarget {
         return $this->customBaseUri . $this->baseUri;
     }
 
-    /**
-     * @param string $baseUri
-     */
-    public function setCustomBaseUri(string $baseUri)
+    public function setCustomBaseUri(string $baseUri): void
     {
         $this->customBaseUri = $baseUri;
     }

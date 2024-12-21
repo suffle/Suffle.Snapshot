@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Suffle\Snapshot\Service;
 
 /**
@@ -13,16 +15,15 @@ namespace Suffle\Snapshot\Service;
  * source code.
  */
 
+use Neos\Flow\Annotations as Flow;
+use Neos\Utility\Exception\FilesException;
+use SebastianBergmann\Diff\Differ;
 use Suffle\Snapshot\Diff\DiffOutputBuilder;
 use Suffle\Snapshot\Fusion\FusionService;
 use Suffle\Snapshot\Fusion\FusionView;
-use Suffle\Snapshot\Traits\SimulateContextTrait;
 use Suffle\Snapshot\Traits\OutputTrait;
 use Suffle\Snapshot\Traits\PackageTrait;
-
-use Neos\Flow\Annotations as Flow;
-
-use SebastianBergmann\Diff\Differ;
+use Suffle\Snapshot\Traits\SimulateContextTrait;
 
 
 /**
@@ -32,75 +33,30 @@ class TestingService
 {
     use SimulateContextTrait, OutputTrait, PackageTrait;
 
-    const UPDATE_SNAPSHOT_ANSWERS = array(
+    public const UPDATE_SNAPSHOT_ANSWERS = [
         "y" => "update this snapshot",
         "n" => "do not update this snapshot",
         "q" => "do not update and quit immediately",
         "a" => "update this and all following failed snapshots",
         "d" => "do not update this or any following snapshots"
-    );
+    ];
 
-    /**
-     * @Flow\Inject
-     * @var FusionService
-     */
-    protected $fusionService;
+    #[Flow\Inject]
+    protected FusionService $fusionService;
 
-    /**
-     * @var int >= 0
-     */
-    private $totalTests = 0;
-
-    /**
-     * @var int >= 0
-     */
-    private $failedTests = 0;
-
-    /**
-     * @var array
-     */
-    private $failedPrototypes;
-
-    /**
-     * @var int >= 0
-     */
-    private $newSnapshots = 0;
-
-    /**
-     * @var bool
-     */
-    private $testSuccess = true;
-
-    /**
-     * @var bool
-     */
-    private $interactiveMode = false;
-
-    /**
-     * @var bool
-     */
-    private $updateAllSnapshots = false;
-
-    /**
-     * @var bool
-     */
-    private $skipAllSnapshots = false;
-
-    /**
-     * @var array
-     */
-    private $sitePackages;
-
-    /**
-     * @var array
-     */
-    private $detailedTestResults;
+    private int $totalTests = 0;
+    private int $failedTests = 0;
+    private array $failedPrototypes = [];
+    private int $newSnapshots = 0;
+    private bool $testSuccess = true;
+    private bool $interactiveMode;
+    private bool $updateAllSnapshots;
+    private bool $skipAllSnapshots = false;
+    private ?array $sitePackages;
+    private array $detailedTestResults = [];
 
     /**
      * Constructs the command controller
-     * @param string $packageKey
-     * @param bool $interactive
-     * @param $updateAll
      */
     public function __construct(string $packageKey = null, bool $interactive = false, bool $updateAll = false)
     {
@@ -109,16 +65,6 @@ class TestingService
         $this->updateAllSnapshots = $updateAll;
     }
 
-    /**
-     * @return array
-     * @throws \Exception
-     * @throws \Neos\Flow\I18n\Exception\InvalidLocaleIdentifierException
-     * @throws \Neos\Flow\Mvc\Exception
-     * @throws \Neos\Flow\Security\Exception
-     * @throws \Neos\Fusion\Exception
-     * @throws \Neos\Neos\Domain\Exception
-     * @throws \Neos\Utility\Exception\FilesException
-     */
     public function testAllPrototypes(): array
     {
         $this->reset();
@@ -139,17 +85,6 @@ class TestingService
         return $this->getStats();
     }
 
-    /**
-     * @param string $prototypeName
-     * @return array
-     * @throws \Exception
-     * @throws \Neos\Flow\I18n\Exception\InvalidLocaleIdentifierException
-     * @throws \Neos\Flow\Mvc\Exception
-     * @throws \Neos\Flow\Security\Exception
-     * @throws \Neos\Fusion\Exception
-     * @throws \Neos\Neos\Domain\Exception
-     * @throws \Neos\Utility\Exception\FilesException
-     */
     public function testPrototype(string $prototypeName): array
     {
         $this->reset();
@@ -167,17 +102,6 @@ class TestingService
         return $this->getStats();
     }
 
-    /**
-     * @param string $prototypeName
-     * @param string $sitePackageKey
-     * @throws \Exception
-     * @throws \Neos\Flow\I18n\Exception\InvalidLocaleIdentifierException
-     * @throws \Neos\Flow\Mvc\Exception
-     * @throws \Neos\Flow\Security\Exception
-     * @throws \Neos\Fusion\Exception
-     * @throws \Neos\Neos\Domain\Exception
-     * @throws \Neos\Utility\Exception\FilesException
-     */
     private function testSinglePrototype(string $prototypeName, string $sitePackageKey): void
     {
         $prototypePreviewRenderPath = FusionService::RENDERPATH_DISCRIMINATOR . str_replace(['.', ':'], ['_', '__'], $prototypeName);
@@ -187,7 +111,12 @@ class TestingService
         $fusionView->setFusionPath($prototypePreviewRenderPath);
         $fusionView->setPackageKey($sitePackageKey);
 
-        $renderedPrototypes = $fusionView->renderSnapshotPrototype($prototypeName);
+        try {
+            $renderedPrototypes = $fusionView->renderSnapshotPrototype($prototypeName);
+        } catch (\Throwable $e) {
+            $this->outputFailed("Error rendering prototype %s: %s", [$prototypeName, $e->getMessage()], 1);
+            return;
+        }
 
         $builder = new DiffOutputBuilder();
         $differ = new Differ($builder);
@@ -197,12 +126,17 @@ class TestingService
         $this->outputInfoText($prototypeName, 1);
 
         foreach ($renderedPrototypes as $propSetName => $renderedPrototype) {
-            $savedSnapshot = $snapshotService->getSnapshotOfPropSet($prototypeName, $propSetName, $sitePackageKey);
+            try {
+                $savedSnapshot = $snapshotService->getSnapshotOfPropSet($prototypeName, $propSetName, $sitePackageKey);
+            } catch (FilesException $e) {
+                $this->outputFailed("Error reading snapshot for propSet %s: %s", [$propSetName, $e->getMessage()], 2);
+                continue;
+            }
 
             if (!$savedSnapshot) {
                 $this->outputInfo("No snapshot found for propSet %s", [$propSetName], 2);
                 $snapshotService->takeSnapshotOfPropSet($renderedPrototype, $prototypeName, $propSetName, $sitePackageKey);
-                $this->newSnapshots += 1;
+                ++$this->newSnapshots;
                 $this->detailedTestResults[$prototypeName][$propSetName] = [
                     'success' => false,
                     'newSnapshot' => true
@@ -215,7 +149,7 @@ class TestingService
             if ($diff && $this->updateAllSnapshots) {
                 $this->outputInfo("Auto-update snapshot for propSet %s", [$propSetName], 2);
                 $snapshotService->takeSnapshotOfPropSet($renderedPrototype, $prototypeName, $propSetName, $sitePackageKey);
-                $this->newSnapshots += 1;
+                ++$this->newSnapshots;
                 $this->detailedTestResults[$prototypeName][$propSetName] = [
                     'success' => false,
                     'newSnapshot' => true
@@ -228,60 +162,57 @@ class TestingService
                 continue;
             }
 
-            if ($diff && $this->interactiveMode) {
-                $this->outputInfo("PropSet %s has changed", [$propSetName], 2);
-                $this->outputTabbed($diff, [], 3);
-                $this->outputNewLine();
-                // give non-existing answer as default to force decision
-                $answer = $this->waitAndAsk("Update snapshot?", self::UPDATE_SNAPSHOT_ANSWERS, "false", 2);
+            $this->outputInfo("PropSet %s has changed", [$propSetName], 2);
+            $this->outputTabbed($diff, [], 3);
+            $this->outputNewLine();
+            // give non-existing answer as default to force decision
+            $answer = $this->waitAndAsk("Update snapshot?", self::UPDATE_SNAPSHOT_ANSWERS, "false", 2);
 
-                switch($answer) {
-                    case "y":
-                        $snapshotService->takeSnapshotOfPropSet($renderedPrototype, $prototypeName, $propSetName, $sitePackageKey);
-                        $this->newSnapshots += 1;
-                        $this->detailedTestResults[$prototypeName][$propSetName] = [
-                            'success' => false,
-                            'newSnapshot' => true
-                        ];
-                        break;
-                    case "n":
-                        $this->makeTest($diff, $propSetName, $prototypeName);
-                        break;
-                    case "q":
-                        throw new \Exception('Testing aborted');
-                        break;
-                    case "a":
-                        $snapshotService->takeSnapshotOfPropSet($renderedPrototype, $prototypeName, $propSetName, $sitePackageKey);
-                        $this->newSnapshots += 1;
-                        $this->updateAllSnapshots = true;
-                        $this->detailedTestResults[$prototypeName][$propSetName] = [
-                            'success' => false,
-                            'newSnapshot' => true
-                        ];
-                        break;
-                    case "d":
-                        $this->skipAllSnapshots = true;
-                        $this->makeTest($diff, $propSetName, $prototypeName);
-                        break;
-                }
+            switch($answer) {
+                case "y":
+                    $snapshotService->takeSnapshotOfPropSet($renderedPrototype, $prototypeName, $propSetName, $sitePackageKey);
+                    ++$this->newSnapshots;
+                    $this->detailedTestResults[$prototypeName][$propSetName] = [
+                        'success' => false,
+                        'newSnapshot' => true
+                    ];
+                    break;
+                case "n":
+                    $this->makeTest($diff, $propSetName, $prototypeName);
+                    break;
+                case "q":
+                    throw new \RuntimeException('Testing aborted');
+                case "a":
+                    $snapshotService->takeSnapshotOfPropSet($renderedPrototype, $prototypeName, $propSetName, $sitePackageKey);
+                    ++$this->newSnapshots;
+                    $this->updateAllSnapshots = true;
+                    $this->detailedTestResults[$prototypeName][$propSetName] = [
+                        'success' => false,
+                        'newSnapshot' => true
+                    ];
+                    break;
+                case "d":
+                    $this->skipAllSnapshots = true;
+                    $this->makeTest($diff, $propSetName, $prototypeName);
+                    break;
             }
         }
 
         $this->outputNewLine();
     }
 
-    private function makeTest($diff, $propSetName, $prototypeName)
+    private function makeTest(string $diff, string $propSetName, string $prototypeName): void
     {
-        $this->totalTests += 1;
+        ++$this->totalTests;
 
         if (!$diff) {
             $this->outputSuccess($propSetName, [], 2);
         } else {
             $this->testSuccess = false;
-            $this->failedTests += 1;
+            ++$this->failedTests;
 
             if ($this->failedPrototypes && array_key_exists($prototypeName, $this->failedPrototypes)) {
-                array_push($this->failedPrototypes[$prototypeName], $propSetName);
+                $this->failedPrototypes[$prototypeName][] = $propSetName;
             } else {
                 $this->failedPrototypes[$prototypeName] = array($propSetName);
             }

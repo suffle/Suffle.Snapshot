@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Suffle\Snapshot\Controller;
 
 /**
@@ -12,27 +15,17 @@ namespace Suffle\Snapshot\Controller;
  * source code.
  */
 
-use Suffle\Snapshot\Service\TestingService;
-
-use Neos\Flow\Annotations as Flow;
-use Neos\Flow\Mvc\View\ViewInterface;
 use Neos\Flow\Mvc\Controller\ActionController;
+use Neos\Flow\Mvc\View\ViewInterface;
 use Suffle\Snapshot\Traits\PackageTrait;
 
 class OverviewController extends ActionController
 {
-
     use PackageTrait;
-    /**
-     * @var array
-     */
-    protected $sitePackage;
 
-    /**
-     * @param  ViewInterface $view
-     * @return void
-     */
-    public function initializeView(ViewInterface $view)
+    protected array $sitePackage;
+
+    public function initializeView(ViewInterface $view): void
     {
         if (!$this->sitePackage) {
             $this->sitePackage = $this->getFirstOnlineSitePackage();
@@ -40,10 +33,8 @@ class OverviewController extends ActionController
 
         $this->view->assign('currentSitePackageKey', $this->sitePackage['packageKey']);
     }
-    /**
-     * @return void
-     */
-    public function indexAction()
+
+    public function indexAction(): void
     {
     }
 }
