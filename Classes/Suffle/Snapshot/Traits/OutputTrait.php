@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Suffle\Snapshot\Traits;
 
 /**
@@ -14,29 +16,26 @@ namespace Suffle\Snapshot\Traits;
  */
 
 use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Cli\ConsoleOutput;
 
 /**
  * Utility trait to generate console outputs
  */
 trait OutputTrait
 {
-    static protected $INFO_COLOR = "yellow";
-    static protected $SUCCESS_COLOR = "green";
-    static protected $FAILED_COLOR = "red";
+    static protected string $INFO_COLOR = "yellow";
+    static protected string $SUCCESS_COLOR = "green";
+    static protected string $FAILED_COLOR = "red";
 
-    /**
-     * @Flow\Inject
-     * @var \Neos\Flow\Cli\ConsoleOutput
-     */
-    protected $output;
+    #[Flow\Inject]
+    protected ConsoleOutput $output;
 
     /**
      * Outputs specified text to the console window in color yellow
      * You can specify arguments that will be passed to the text via sprintf
      *
-     *
      * @param string $text Text to output
-     * @param int tabs number of tab indentations
+     * @param int $tabs number of tab indentations
      */
     protected function outputInfoText(string $text, int $tabs = 0): void
     {
@@ -48,10 +47,9 @@ trait OutputTrait
      * Outputs text to the console with INFO prefix
      * You can specify arguments that will be passed to the text via sprintf
      *
-     *
      * @param string $text Text to output
      * @param array $arguments Optional arguments to use for sprintf
-     * @param int tabs number of tab indentations
+     * @param int $tabs number of tab indentations
      */
     protected function outputInfo(string $text, array $arguments = [], int $tabs = 0): void
     {
@@ -61,11 +59,6 @@ trait OutputTrait
     /**
      * Outputs text to the console with SUCCESS prefix
      * You can specify arguments that will be passed to the text via sprintf
-     *
-     *
-     * @param string $text
-     * @param array $arguments
-     * @param int $tabs
      */
     protected function outputSuccess(string $text, array $arguments = [], int $tabs = 0): void
     {
@@ -75,11 +68,6 @@ trait OutputTrait
     /**
      * Outputs text to the console with FAILED prefix
      * You can specify arguments that will be passed to the text via sprintf
-     *
-     *
-     * @param string $text
-     * @param array $arguments
-     * @param int $tabs
      */
     protected function outputFailed(string $text, array $arguments = [], int $tabs = 0): void
     {
@@ -97,11 +85,6 @@ trait OutputTrait
     /**
      * Outputs indented text
      * You can specify arguments that will be passed to the text via sprintf
-     *
-     *
-     * @param string $text
-     * @param array $arguments
-     * @param int $tabs
      */
     protected function outputTabbed(string $text, array $arguments = [], int $tabs = 0): void
     {
@@ -115,25 +98,17 @@ trait OutputTrait
         }
     }
 
-
-    /**
-     * @param string $prefix
-     * @param string $color
-     * @param string $text
-     * @param array $arguments
-     * @param int $tabs
-     */
-    private function outputPrefixed(string $prefix, string $color, string $text, array $arguments = [], int $tabs = 0): void
-    {
+    private function outputPrefixed(
+        string $prefix,
+        string $color,
+        string $text,
+        array $arguments = [],
+        int $tabs = 0
+    ): void {
         $formattedText = "<fg=" . $color . ">" . $prefix . "</>\t" . $text . PHP_EOL;
         $this->outputTabbed($formattedText, $arguments, $tabs);
     }
 
-
-    /**
-     * @param string $text
-     * @param array $arguments
-     */
     protected function output(string $text, array $arguments = []): void
     {
         $this->output->output($text, $arguments);
@@ -145,7 +120,7 @@ trait OutputTrait
      *
      * @param string $question
      * @param array $answers in form of answer => explanation
-     * @param string  $default default value if user presses enter without an answer (can't be null => throws Exception)
+     * @param string $default default value if user presses enter without an answer (can't be null => throws Exception)
      * @param int $tabs
      * @return string
      */
@@ -165,7 +140,8 @@ trait OutputTrait
                 }
             }
 
-            $response = strtolower($this->output->ask("<fg=cyan>" . $formattedQuestion . " " . $answersShort .  "</>", $default));
+            $response = strtolower($this->output->ask("<fg=cyan>" . $formattedQuestion . " " . $answersShort . "</>",
+                $default));
         }
         $this->output->outputLine();
 

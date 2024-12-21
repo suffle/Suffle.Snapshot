@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Suffle\Snapshot\Traits;
 
 /**
@@ -13,6 +15,7 @@ namespace Suffle\Snapshot\Traits;
  * source code.
  */
 
+use Neos\Neos\Domain\Model\Domain;
 use Neos\Neos\Domain\Model\Site;
 use Neos\Neos\Domain\Repository\SiteRepository;
 
@@ -21,28 +24,20 @@ use Neos\Neos\Domain\Repository\SiteRepository;
  */
 trait PackageTrait
 {
-
-    /**
-     * @return array
-     */
-    protected function getFirstOnlineSitePackage()
+    protected function getFirstOnlineSitePackage(): array
     {
         $siteRepository = new SiteRepository();
         $sitePackage = $siteRepository->findFirstOnline();
 
-        return array(
-            'packageKey' => $sitePackage->getSiteResourcesPackageKey(),
-            'baseUri' => $this->generateBaseUri($sitePackage->getPrimaryDomain())
-        );
+        return [
+            'packageKey' => $sitePackage?->getSiteResourcesPackageKey(),
+            'baseUri' => $this->generateBaseUri($sitePackage?->getPrimaryDomain())
+        ];
     }
 
-    /**
-     * @return string
-     */
-    protected function getFirstOnlineSitePackageKey()
+    protected function getFirstOnlineSitePackageKey(): string
     {
         $sitePackage = $this->getFirstOnlineSitePackage();
-
         return $sitePackage['packageKey'];
     }
 
@@ -88,12 +83,7 @@ trait PackageTrait
         );
     }
 
-
-    /**
-     * @param $domain \Neos\Neos\Domain\Model\Domain
-     * @return string
-     */
-    private function generateBaseUri($domain)
+    private function generateBaseUri(?Domain $domain): string
     {
         if (!$domain) {
             return '';
@@ -102,22 +92,16 @@ trait PackageTrait
         $scheme = $domain->getScheme();
         $port = $domain->getPort();
 
-        $baseUri = '';
-        $baseUri .= $scheme ?: 'http';
+        $baseUri = $scheme ?: 'http';
         $baseUri .= '://';
         $baseUri .= $domain->getHostname();
 
         if ($port !== null) {
-            switch ($scheme) {
-                case 'http':
-                    $baseUri .= ($port !== 80 ? ':' . $port : '');
-                    break;
-                case 'https':
-                    $baseUri .= ($port !== 443 ? ':' . $port : '');
-                    break;
-                default:
-                    $baseUri .= (isset($port) ? ':' . $port : '');
-            }
+            $baseUri .= match ($scheme) {
+                'http' => ($port !== 80 ? ':' . $port : ''),
+                'https' => ($port !== 443 ? ':' . $port : ''),
+                default => ':' . $port,
+            };
         }
         return $baseUri;
     }

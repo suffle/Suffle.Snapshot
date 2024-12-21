@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace Suffle\Snapshot\Traits;
 
 /**
@@ -14,29 +16,23 @@ namespace Suffle\Snapshot\Traits;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use GuzzleHttp\Psr7\Uri;
+use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Mvc\ActionRequest;
 use Neos\Flow\Mvc\ActionResponse;
 use Neos\Flow\Mvc\Controller\Arguments;
-use Neos\Flow\Mvc\Exception\InvalidActionNameException;
-use Neos\Flow\Mvc\Exception\InvalidArgumentNameException;
-use Neos\Flow\Mvc\Exception\InvalidArgumentTypeException;
-use Neos\Flow\Mvc\Exception\InvalidControllerNameException;
-use Neos\Flow\Mvc\Routing\UriBuilder;
 use Neos\Flow\Mvc\Controller\ControllerContext;
+use Neos\Flow\Mvc\Routing\UriBuilder;
+use Neos\Flow\ResourceManagement\Collection;
+use Neos\Flow\ResourceManagement\ResourceManager;
 use Suffle\Snapshot\Resource\Target\OverridableFileSystemTarget;
-
-use Neos\Flow\Annotations as Flow;
 
 /**
  * Utility trait to create controller contexts within CLI SAPI
  */
 trait SimulateContextTrait
 {
-    /**
-    * @Flow\Inject
-    * @var \Neos\Flow\ResourceManagement\ResourceManager
-    */
-    protected $resourceManager;
+    #[Flow\Inject]
+    protected ResourceManager $resourceManager;
 
     /**
      * @var ControllerContext
@@ -45,28 +41,15 @@ trait SimulateContextTrait
 
     /**
      * Create a dummy controller context
-     *
-     * @return ControllerContext
-     * @throws InvalidActionNameException
-     * @throws InvalidArgumentNameException
-     * @throws InvalidArgumentTypeException
-     * @throws InvalidControllerNameException
      */
     protected function createDummyContext(): ControllerContext
     {
         if (!$this->controllerContext) {
             $arguments = new Arguments([]);
 
-            if (method_exists(ActionRequest::class, 'fromHttpRequest')) {
-                // From Flow 6+ we have to use a static method to create an ActionRequest. Earlier versions use the constructor.
-                $actionRequest = ActionRequest::fromHttpRequest(new ServerRequest('GET', new Uri('http://neos.io')));
-                $response = new ActionResponse();
-            } else {
-                // This can be cleaned up when this package in a future release only support Flow 6+.
-                $httpRequest = \Neos\Flow\Http\Request::create(new \Neos\Flow\Http\Uri('http://neos.io'));
-                $actionRequest = new ActionRequest($httpRequest);
-                $response = new \Neos\Flow\Http\Response();
-            }
+            // From Flow 6+ we have to use a static method to create an ActionRequest. Earlier versions use the constructor.
+            $actionRequest = ActionRequest::fromHttpRequest(new ServerRequest('GET', new Uri('http://neos.io')));
+            $response = new ActionResponse();
 
             $uriBuilder = new UriBuilder();
             $uriBuilder
@@ -85,18 +68,15 @@ trait SimulateContextTrait
      * Override the baseUri of static resource targets
      *
      * This is needed because the rendering can be executed via CLI without a baseUri
-     *
-     * @param string $baseUri
-     * @throws \Neos\Utility\Exception\PropertyNotAccessibleException
      */
-    protected function injectBaseUriIntoFileSystemTargets($baseUri)
+    protected function injectBaseUriIntoFileSystemTargets(string $baseUri): void
     {
         // Make sure the base URI ends with a slash
         $baseUri = rtrim($baseUri, '/') . '/';
 
         $collections = $this->resourceManager->getCollections();
 
-        /** @var \Neos\Flow\ResourceManagement\Collection $collection */
+        /** @var Collection $collection */
         foreach ($collections as $collection) {
             $target = $collection->getTarget();
             if ($target instanceof OverridableFileSystemTarget) {
@@ -105,5 +85,3 @@ trait SimulateContextTrait
         }
     }
 }
-
-

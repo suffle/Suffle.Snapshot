@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Suffle\Snapshot\Diff;
 
 /**
@@ -16,23 +18,11 @@ namespace Suffle\Snapshot\Diff;
 use SebastianBergmann\Diff\Differ;
 use SebastianBergmann\Diff\Output\DiffOutputBuilderInterface;
 
-
 final class DiffOutputBuilder implements DiffOutputBuilderInterface
 {
-    /**
-     * @var int >= 0
-     */
-    private $commonLineThreshold = 6;
-
-    /**
-     * @var int >= 0
-     */
-    private $contextLines = 3;
-
-    /**
-     * @var string
-     */
-    private $header;
+    private int $commonLineThreshold = 6;
+    private int $contextLines = 3;
+    private string $header;
 
     public function __construct()
     {
@@ -41,9 +31,6 @@ final class DiffOutputBuilder implements DiffOutputBuilderInterface
 
     /**
      * get diff of two values
-     *
-     * @param array $diff
-     * @return string
      */
     public function getDiff(array $diff): string
     {
@@ -53,16 +40,15 @@ final class DiffOutputBuilder implements DiffOutputBuilderInterface
             $this->writeDiffHunks($buffer, $diff);
         }
 
-        $diff = \stream_get_contents($buffer, -1, 0);
+        $output = \stream_get_contents($buffer, -1, 0);
 
         \fclose($buffer);
 
 
-        if ($diff) {
-            $diff = $this->header . $diff;
+        if ($output) {
+            $output = $this->header . $output;
         }
-
-        return $diff;
+        return $output;
     }
 
     /**
@@ -83,7 +69,8 @@ final class DiffOutputBuilder implements DiffOutputBuilderInterface
                 $lc = \substr($diff[$i][0], -1);
 
                 if (PHP_EOL !== $lc) {
-                    \array_splice($diff, $i + 1, 0, [[PHP_EOL . "\\ No newline at end of file" . PHP_EOL, Differ::NO_LINE_END_EOF_WARNING]]);
+                    \array_splice($diff, $i + 1, 0,
+                        [[PHP_EOL . "\\ No newline at end of file" . PHP_EOL, Differ::NO_LINE_END_EOF_WARNING]]);
                 }
 
                 if (!\count($toFind)) {
@@ -95,22 +82,18 @@ final class DiffOutputBuilder implements DiffOutputBuilderInterface
 
         $cutOff = \max($this->commonLineThreshold, $this->contextLines);
         $hunkCapture = false;
-        $sameCount = $toRange = $fromRange = 0;
-        $toStart = $fromStart = 1;
+        $sameCount = $fromRange = 0;
+        $fromStart = 1;
 
         foreach ($diff as $i => $entry) {
-
             // Write part of diff if commonLineThreshold is reached (collapse common lines)
             if (0 === $entry[1]) {
                 if (false === $hunkCapture) {
                     ++$fromStart;
-                    ++$toStart;
-
                     continue;
                 }
 
                 ++$sameCount;
-                ++$toRange;
                 ++$fromRange;
 
                 if ($sameCount === $cutOff) {
@@ -126,10 +109,8 @@ final class DiffOutputBuilder implements DiffOutputBuilderInterface
                     );
 
                     $fromStart += $fromRange;
-                    $toStart += $toRange;
-
                     $hunkCapture = false;
-                    $sameCount = $toRange = $fromRange = 0;
+                    $sameCount = $fromRange = 0;
                 }
 
                 continue;
@@ -143,10 +124,6 @@ final class DiffOutputBuilder implements DiffOutputBuilderInterface
 
             if (false === $hunkCapture) {
                 $hunkCapture = $i;
-            }
-
-            if (Differ::ADDED === $entry[1]) {
-                ++$toRange;
             }
 
             if (Differ::REMOVED === $entry[1]) {
@@ -192,9 +169,7 @@ final class DiffOutputBuilder implements DiffOutputBuilderInterface
         int $diffEndIndex,
         int $fromStart,
         $output
-    ): void
-    {
-
+    ): void {
         \fwrite($output, "<fg=cyan>@@ Line: " . $fromStart . " @@</>" . PHP_EOL);
 
         for ($i = $diffStartIndex; $i < $diffEndIndex; ++$i) {

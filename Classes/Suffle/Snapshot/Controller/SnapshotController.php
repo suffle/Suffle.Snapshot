@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace Suffle\Snapshot\Controller;
 
 /**
@@ -12,33 +14,27 @@ namespace Suffle\Snapshot\Controller;
  * source code.
  */
 
-use Suffle\Snapshot\Service\TestingService;
-
-use Neos\Flow\Annotations as Flow;
+use Neos\ContentRepository\TypeConverter\NodeConverter;
+use Neos\Flow\Mvc\Exception\NoSuchArgumentException;
 use Neos\Neos\Controller\Module\AbstractModuleController;
 use Suffle\Snapshot\Traits\PackageTrait;
 
-/**
- * Class StyleguideController
- * @package Suffle\Snapshot\Controller
- */
 class SnapshotController extends AbstractModuleController
 {
     use PackageTrait;
-    /**
-     * @var array
-     */
-    protected $sitePackage;
+
+    protected ?array $sitePackage = null;
 
     /**
-     * @return void
-     * @throws \Neos\Flow\Mvc\Exception\NoSuchArgumentException
+     * @throws NoSuchArgumentException
      */
-    protected function initializeAction()
+    protected function initializeAction(): void
     {
         if ($this->arguments->hasArgument('node')) {
-            $this->arguments->getArgument('node')->getPropertyMappingConfiguration()->setTypeConverterOption('Neos\ContentRepository\TypeConverter\NodeConverter',
-                \Neos\Neos\TypeConverter\NodeConverter::REMOVED_CONTENT_SHOWN, true);
+            $this->arguments->getArgument('node')->getPropertyMappingConfiguration()->setTypeConverterOption(
+                NodeConverter::class,
+                NodeConverter::REMOVED_CONTENT_SHOWN, true
+            );
 
         }
 
@@ -49,10 +45,7 @@ class SnapshotController extends AbstractModuleController
         parent::initializeAction();
     }
 
-    /**
-     * @return void
-     */
-    public function indexAction()
+    public function indexAction(): void
     {
 
     }

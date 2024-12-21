@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 namespace Suffle\Snapshot;
 
 /**
@@ -29,25 +31,23 @@ class Package extends BasePackage
 
     /**
      * Invokes custom PHP code directly after the package manager has been initialized.
-     *
-     * @param Bootstrap $bootstrap The current bootstrap
-     * @return void
      */
-    public function boot(Bootstrap $bootstrap)
+    public function boot(Bootstrap $bootstrap): void
     {
         $dispatcher = $bootstrap->getSignalSlotDispatcher();
 
         $context = $bootstrap->getContext();
         if (!$context->isProduction()) {
-            $dispatcher->connect(Sequence::class, 'afterInvokeStep', function ($step) use ($bootstrap, $dispatcher) {
+            $dispatcher->connect(Sequence::class, 'afterInvokeStep', function ($step) use ($bootstrap) {
                 if ($step->getIdentifier() === 'neos.flow:systemfilemonitor') {
-                    $templateFileMonitor = FileMonitor::createFileMonitorAtBoot('Suffle_Snapshot_Fusion_Files', $bootstrap);
+                    $templateFileMonitor = FileMonitor::createFileMonitorAtBoot('Suffle_Snapshot_Fusion_Files',
+                        $bootstrap);
                     /**
                      * @var PackageManager $packageManager
                      */
                     $packageManager = $bootstrap->getEarlyInstance(PackageManager::class);
 
-                    foreach ($packageManager->getAvailablePackages() as $packageKey => $package) {
+                    foreach ($packageManager->getAvailablePackages() as $package) {
                         if (method_exists($package, 'getResourcesPath')) {
                             $templatesPath = $package->getResourcesPath() . 'Private/Fusion';
                             if (is_dir($templatesPath)) {
